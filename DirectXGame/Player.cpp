@@ -6,12 +6,12 @@ void Player::Initialize(KamataEngine::Model* model, uint32_t textureHandle,Kamat
 	assert(model);
 	
 	model_ = model; 
+
 	camera_ = camera;
 	
 	textureHandle_ = textureHandle;
-	worldTransform_.Initialize();	
-
 	
+	worldTransform_.Initialize();	
 }
 
 void Player::Update()

@@ -9,27 +9,32 @@ void GameScene::Initialize() {
 
 	worldTransform_.Initialize();
 
-	camera_.Initialize();
+	camera_ = new Camera();
+	camera_->Initialize();
 
 	player_ = new Player();
 
-	player_->Initialize(model_, textureHandle_, camera_);
+	player_->Initialize(model_, textureHandle_,camera_);
 }
 
-void GameScene::Update() { player_->Update(); }
+void GameScene::Update() 
+{ 
+	player_->Update(); 
+}
 
 void GameScene::Draw() {
 
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 
-	model_->PreDraw(dxCommon->GetCommandList());
+	Model::PreDraw(dxCommon->GetCommandList());
 
 	player_->Draw();
 
-	model_->PostDraw();
+	Model::PostDraw();
 }
 
 GameScene::~GameScene() {
 	delete model_;
 	delete player_;
+	delete camera_;
 }
