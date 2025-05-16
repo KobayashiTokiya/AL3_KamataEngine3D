@@ -21,9 +21,11 @@ private:
 
 	KamataEngine::Model* model_ = nullptr;
 
-	KamataEngine::WorldTransform worldTransform_;
+	//KamataEngine::WorldTransform worldTransform_;
 
 	KamataEngine::Camera* camera_;
 
 	Player* player_ = nullptr;
+
+	std::vector<KamataEngine::WorldTransform*> worldTransformBlocks_;
 };

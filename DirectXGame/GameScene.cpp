@@ -7,7 +7,7 @@ void GameScene::Initialize() {
 
 	model_ = Model::Create();
 
-	worldTransform_.Initialize();
+	
 
 	camera_ = new Camera();
 	camera_->Initialize();
@@ -35,6 +35,11 @@ void GameScene::Draw() {
 
 GameScene::~GameScene() {
 	delete model_;
+	for (WorldTransform* worldTransformBlock : worldTransformBlocks_)
+	{
+		delete worldTransformBlock;
+	}
+	worldTransformBlocks_.clear();
 	delete player_;
 	delete camera_;
 }
