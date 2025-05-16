@@ -1,4 +1,5 @@
 #include "GameScene.h"
+#include "Math.h"
 
 using namespace KamataEngine;
 
@@ -6,7 +7,7 @@ void GameScene::Initialize() {
 	textureHandle_ = TextureManager::Load("sample.png");
 
 	model_ = Model::Create();
-
+	modelBlock_ = Model::Create();
 	const uint32_t kNumBlockHorizontal = 20;
 
 	const float kBlockWidth = 2.0f;
@@ -28,14 +29,15 @@ void GameScene::Initialize() {
 	player_->Initialize(model_, textureHandle_, camera_);
 }
 
-void GameScene::Update() 
-{
+void GameScene::Update() {
 	player_->Update();
 
 	for (WorldTransform* worldTransformBlock : worldTransformBlocks_) {
-		
 
-		worldTransformBlock->matWorld_ = MakeAffineMatrix(worldTransformBlock->scale_, worldTransformBlock->rotation_, worldTransformBlock->translation_);
+		Matrix4x4 affin_mat = MakeAffineMatrix(worldTransformBlock->scale_, worldTransformBlock->rotation_, worldTransformBlock->translation_);
+		worldTransformBlock->matWorld_ = affin_mat;
+
+		// 定数バッファに転送する
 		worldTransformBlock->TransferMatrix();
 	}
 }
@@ -46,16 +48,23 @@ void GameScene::Draw() {
 
 	Model::PreDraw(dxCommon->GetCommandList());
 
-	player_->Draw();
+	//player_->Draw();
+	
+	for (WorldTransform* worldTranceformBlock : worldTransformBlocks_)
+	{
+		modelBlock_->Draw(*worldTranceformBlock, *camera_);
+	}
 
 	Model::PostDraw();
 }
 
-GameScene::~GameScene() {
-	delete model_;
-	for (WorldTransform* worldTransformBlock : worldTransformBlocks_) {
+GameScene::~GameScene() 
+{
+	for (WorldTransform* worldTransformBlock : worldTransformBlocks_) 
+	{
 		delete worldTransformBlock;
 	}
+	delete model_;
 	worldTransformBlocks_.clear();
 	delete player_;
 	delete camera_;

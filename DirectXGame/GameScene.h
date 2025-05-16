@@ -28,4 +28,6 @@ private:
 	Player* player_ = nullptr;
 
 	std::vector<KamataEngine::WorldTransform*> worldTransformBlocks_;
+
+	KamataEngine::Model* modelBlock_ = nullptr;
 };
