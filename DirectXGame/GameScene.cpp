@@ -12,12 +12,12 @@ void GameScene::Initialize() {
 	const float kBlockWidth = 2.0f;
 
 	worldTransformBlocks_.resize(kNumBlockHorizontal);
-	for (uint32_t i= 0; i < kNumBlockHorizontal; ++i) {
-		
+	for (uint32_t i = 0; i < kNumBlockHorizontal; ++i) {
+
 		worldTransformBlocks_[i] = new WorldTransform();
 		worldTransformBlocks_[i]->Initialize();
 		worldTransformBlocks_[i]->translation_.x = kBlockWidth * i;
-		worldTransformBlocks_[i]->translation_.y =0.0f;
+		worldTransformBlocks_[i]->translation_.y = 0.0f;
 	}
 
 	camera_ = new Camera();
@@ -28,7 +28,17 @@ void GameScene::Initialize() {
 	player_->Initialize(model_, textureHandle_, camera_);
 }
 
-void GameScene::Update() { player_->Update(); }
+void GameScene::Update() 
+{
+	player_->Update();
+
+	for (WorldTransform* worldTransformBlock : worldTransformBlocks_) {
+		
+
+		worldTransformBlock->matWorld_ = MakeAffineMatrix(worldTransformBlock->scale_, worldTransformBlock->rotation_, worldTransformBlock->translation_);
+		worldTransformBlock->TransferMatrix();
+	}
+}
 
 void GameScene::Draw() {
 
