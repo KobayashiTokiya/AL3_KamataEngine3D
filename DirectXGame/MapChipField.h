@@ -24,6 +24,8 @@ public:
 
 	void ResetMapChipData();
 
+	void LoadMapChipCsv(const std::string& filePath);
+
 private:
 	static inline const uint32_t kNumBlockVirtical = 20;
 	static inline const uint32_t kNumBlockHorizontal = 100;

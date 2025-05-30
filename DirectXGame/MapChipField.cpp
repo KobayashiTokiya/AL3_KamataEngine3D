@@ -1,6 +1,6 @@
 #include <cassert>
-#include <fstream>
 #include <map>
+#include <fstream>
 #include <sstream>
 #include <string>
 #include "MapChipField.h"
@@ -22,3 +22,18 @@ void MapChipField::ResetMapChipData()
 		mapChipDataLine.resize(kNumBlockHorizontal);
 	}
 };
+
+void MapChipField::LoadMapChipCsv(const std::string& filePath) 
+{
+    ResetMapChipData(); 
+
+    std::ifstream file;
+	file.open(filePath);
+	assert(file.is_open());
+
+    std::stringstream mapChipCsv;
+
+    mapChipCsv << file.rdbuf();
+
+    file.close();
+}
