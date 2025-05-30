@@ -17,9 +17,14 @@ GameScene::~GameScene() {
 	worldTransformBlocks_.clear();
 
 	delete debugCamera_;
+	//02_03
+	//delete skydome_;
+
+	delete modelSkydome_;
 }
 
-void GameScene::Initialize() {
+void GameScene::Initialize()
+{
 	// ファイル名を指定してテクスチャを読み込む
 	textureHandle_ = TextureManager::Load("sample.png");
 	// スプライトの生成
@@ -33,11 +38,22 @@ void GameScene::Initialize() {
 
 	// 02_01からの追加
 	//  自キャラの生成
-	///player_ = new Player();
+	player_ = new Player();
 	// 自キャラの初期化
-	//player_->Initialize(model_, textureHandle_, &camera_);
+	playerModel_ = Model::CreateFromOBJ("player");
+	player_->Initialize(playerModel_, textureHandle_, &camera_);
 	// 3Dモデルの生成
 	modelBlock_ = Model::Create();
+
+	//02_03
+	skydome_ = new Skydome();
+
+	modelSkydome_ = Model::CreateFromOBJ("skydome", true);
+
+	skydome_->Initialize(modelSkydome_, &camera_);
+
+	camera_.farZ = 1000.0f;
+	camera_.Initialize();
 
 	// 要素数
 	const uint32_t kNumBlockVirtical = 10;
@@ -75,7 +91,7 @@ void GameScene::Initialize() {
 
 void GameScene::Update() {
 
-	//player_->Update();
+	player_->Update();
 
 #ifdef _DEBUG
 	if (Input::GetInstance()->TriggerKey(DIK_SPACE))
@@ -119,6 +135,9 @@ void GameScene::Update() {
 
 	// デバッグカメラの更新
 	debugCamera_->Update();
+
+	//02_03
+	skydome_->Update();
 }
 
 void GameScene::Draw() {
@@ -130,7 +149,7 @@ void GameScene::Draw() {
 	Model::PreDraw(dxCommon->GetCommandList());
 
 	
-	//player_->Draw();
+	player_->Draw();
 
 	// ブロックの描画
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) 
@@ -143,6 +162,8 @@ void GameScene::Draw() {
 			modelBlock_->Draw(*worldTransformBlock, camera_);
 		}
 	}
+	//02_03
+	skydome_->Draw();
 
 	Model::PostDraw();
 
