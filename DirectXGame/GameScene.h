@@ -2,6 +2,7 @@
 #include "KamataEngine.h"
 #include "Player.h"
 #include "Skydome.h"
+#include "MapChipField.h"
 #include <vector>
 
 class GameScene {
@@ -41,4 +42,8 @@ private:
 	Skydome* skydome_ = nullptr;
 	Model* modelSkydome_ = nullptr;
 	WorldTransform worldTransformSkydome_;
+
+	//02_04
+	//マップチップフィールド
+	MapChipField* mapChipField_;
 };

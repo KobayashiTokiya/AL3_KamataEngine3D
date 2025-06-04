@@ -21,6 +21,9 @@ GameScene::~GameScene() {
 	//delete skydome_;
 
 	delete modelSkydome_;
+
+	//02_04
+	delete mapChipField_;
 }
 
 void GameScene::Initialize()
@@ -54,6 +57,10 @@ void GameScene::Initialize()
 
 	camera_.farZ = 1000.0f;
 	camera_.Initialize();
+
+	//02_04_マップチップフィールド
+	mapChipField_ = new MapChipField;
+	mapChipField_->LoadMapChipCsv("Resources/block/block.png");
 
 	// 要素数
 	const uint32_t kNumBlockVirtical = 10;
