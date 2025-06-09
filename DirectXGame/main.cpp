@@ -5,7 +5,8 @@
 using namespace KamataEngine;
 
 // Windowsアプリでのエントリーポイント(main関数)
-int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
+int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int)
+{
 
 	KamataEngine::Initialize(L"LE2C_09_コバヤシ_トキヤ_AL3");
 
@@ -14,8 +15,10 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	GameScene* gameScene = new GameScene();
 	gameScene->Initialize();
 
-	while (true) {
-		if (KamataEngine::Update()) {
+	while (true) 
+	{
+		if (KamataEngine::Update())
+		{
 			break;
 		}
 		// ゲームシーンの更新

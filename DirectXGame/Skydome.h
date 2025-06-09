@@ -18,5 +18,5 @@ private:
 
 	KamataEngine::Model* model_ = nullptr;
 
-	KamataEngine::Camera* camera_;
+	KamataEngine::Camera* camera_=nullptr;
 };

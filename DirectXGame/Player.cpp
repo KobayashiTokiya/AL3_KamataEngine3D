@@ -10,7 +10,8 @@ void Player::Initialize(KamataEngine::Model* model, uint32_t textureHandle, Kama
 	textureHandle_ = textureHandle;
 
 	worldTransform_.Initialize();
-	worldTransform_.translation_.y = 2.0f;
+	worldTransform_.translation_.x = 2.0f;
+	worldTransform_.translation_.y = 1.0f;
 	
 	camera_ = camera;
 }
