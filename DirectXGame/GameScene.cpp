@@ -42,7 +42,10 @@ void GameScene::Initialize() {
 	player_ = new Player();
 	// 自キャラの初期化
 	playerModel_ = Model::CreateFromOBJ("player");
-	player_->Initialize(playerModel_, textureHandle_, &camera_);
+
+	Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(2, 18);
+	player_->Initialize(playerModel_,&camera_,playerPosition);
+	
 	// 3Dモデルの生成
 	// Model::Create();からModel::CreateFromOBJ("block", true);の変更することによってブロックに変更出来る
 	modelBlock_ = Model::CreateFromOBJ("block", true);
@@ -57,36 +60,7 @@ void GameScene::Initialize() {
 	camera_.farZ = 1000.0f;
 	camera_.Initialize();
 
-	// 要素数
-	// const uint32_t kNumBlockVirtical = 10;
-	// const uint32_t kNumBlockHorizontal = 20;
-	// ブロック1個分の横幅
-	// const float kBlockWidth = 1.0f;
-	// const float kBlockHeight = 1.0f;
-
-	// 要素数を変更する
-	// 列数を設定（縦方向のブロック数）
-	// orldTransformBlocks_.resize(kNumBlockVirtical);
-	// for (uint32_t i = 0; i < kNumBlockVirtical; ++i)
-	//{
-	//	// 1列の要素数を設定（横方向のブロック数）
-	//	worldTransformBlocks_[i].resize(kNumBlockHorizontal);
-	//}
-	//// ブロックの生成
-	// for (uint32_t i = 0; i < kNumBlockVirtical; ++i)
-	//{
-	//	for (uint32_t j = 0; j < kNumBlockHorizontal; ++j)
-	//	{
-	//
-	//		if ((i + j) % 2 == 1)
-	//			continue;
-	//
-	//		worldTransformBlocks_[i][j] = new WorldTransform();
-	//		worldTransformBlocks_[i][j]->Initialize();
-	//		worldTransformBlocks_[i][j]->translation_.x = kBlockWidth * j;
-	//		worldTransformBlocks_[i][j]->translation_.y = kBlockHeight * i;
-	//	}
-	// }
+	
 
 	// 02_04_マップチップフィールド
 	mapChipField_ = new MapChipField;
@@ -97,6 +71,7 @@ void GameScene::Initialize() {
 	debugCamera_ = new DebugCamera(WinApp::kWindowWidth, WinApp::kWindowHeight);
 }
 
+//ブロック
 void GameScene::GenerateBlocks() {
 
 	uint32_t numBlockVirtical = mapChipField_->GetNumBlockVirtical();

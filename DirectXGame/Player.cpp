@@ -1,18 +1,19 @@
 #include "Player.h"
 #include <cassert>
 
-void Player::Initialize(KamataEngine::Model* model, uint32_t textureHandle, KamataEngine::Camera* camera) 
+void Player::Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera, const Vector3& position)
 {
 	assert(model);
 
 	model_ = model;
 
-	textureHandle_ = textureHandle;
+	//textureHandle_ = textureHandle;
 
 	worldTransform_.Initialize();
-	worldTransform_.translation_.x = 2.0f;
-	worldTransform_.translation_.y = 1.0f;
-	
+	//プレイヤーの初期の座標と回転
+	worldTransform_.translation_ = position;
+	worldTransform_.rotation_.y = std::numbers::pi_v<float> / 2.0f;
+
 	camera_ = camera;
 }
 

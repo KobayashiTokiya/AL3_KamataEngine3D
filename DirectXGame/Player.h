@@ -1,11 +1,13 @@
 #pragma once
 #include "KamataEngine.h"
 #include "Math.h"
+//std::numbers::pi_vを使うためにnumbersをインクルードをする
+#include <numbers>
 
 class Player
 {
 public:
-	void Initialize(KamataEngine::Model* model, uint32_t textureHandle,KamataEngine::Camera* camera);
+	void Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera, const Vector3& position);
 
 	void Update();
 
