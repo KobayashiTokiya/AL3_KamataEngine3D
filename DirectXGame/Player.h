@@ -16,6 +16,12 @@ public:
 
 	Vector3 velocity_ = {};
 
+	enum class LRDirection
+	{
+		kRight,
+		kLeft,
+	};
+
 private:
 	WorldTransform worldTransform_;
 
@@ -31,4 +37,5 @@ private:
 	//02_05 最低/最大速度の制限のため
 	static inline const float kLimitRunSpeed = 0.3f;
 
+	LRDirection lrDirection_ = LRDirection::kRight;
 };
