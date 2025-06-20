@@ -22,6 +22,8 @@ public:
 		kLeft,
 	};
 
+	const WorldTransform& GetWorldTransform() const { return worldTransform_;}
+
 private:
 	WorldTransform worldTransform_;
 

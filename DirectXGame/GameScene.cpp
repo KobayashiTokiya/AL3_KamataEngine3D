@@ -69,6 +69,17 @@ void GameScene::Initialize() {
 	GenerateBlocks();
 	// デバッグカメラの生成
 	debugCamera_ = new DebugCamera(WinApp::kWindowWidth, WinApp::kWindowHeight);
+
+
+	//02_06
+	//生成
+	CController_= new CameraController();
+	//初期化
+	CController_->Initiallize(&camera_);
+	//追従対象セット
+	CController_->SetTarget(player_);
+	//リセット
+	CController_->Reset();
 }
 
 //ブロック
@@ -140,6 +151,9 @@ void GameScene::Update() {
 
 	// 02_03
 	skydome_->Update();
+
+	//02_06
+	CController_->Update();
 }
 
 void GameScene::Draw() {
