@@ -80,6 +80,10 @@ void GameScene::Initialize() {
 	CController_->SetTarget(player_);
 	//リセット
 	CController_->Reset();
+
+	//カメラコントローラ
+	CameraController::Rect cameraArea = {12.0f, 100 - 12.0f, 6.0f, 6.0f};
+	CController_->SetMovableArea(cameraArea);
 }
 
 //ブロック
