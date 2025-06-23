@@ -24,6 +24,8 @@ public:
 
 	const WorldTransform& GetWorldTransform() const { return worldTransform_;}
 
+	const KamataEngine::Vector3& GetVelocty() const { return velocity_; }
+
 private:
 	WorldTransform worldTransform_;
 

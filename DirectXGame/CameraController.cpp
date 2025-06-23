@@ -12,9 +12,13 @@ void CameraController::Update()
 {
 	//追従対象のワールドトランスフォームを参照
 	const WorldTransform& targetWorldTransform = target_->GetWorldTransform();
-	//追従対象のオフセットからカメラの座標を計算
+	
+	// 02_06 p29
+	const Vector3& targetVelocty = target_->GetVelocty();
+	
+	//追従対象のオフセットと追従対象の速度からカメラの座標を計算
 	//destination_は、目標座標
-	destination_ = targetWorldTransform.translation_ + targetOffset_;
+	destination_ = targetWorldTransform.translation_ + targetOffset_+targetVelocty*kVelocityBias;
 	
 	//座標補間によりゆったり追従
 	camera_->translation_ = Lerp(camera_->translation_, destination_, kInterpolationRate);
