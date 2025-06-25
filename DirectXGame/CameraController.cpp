@@ -23,6 +23,13 @@ void CameraController::Update()
 	//座標補間によりゆったり追従
 	camera_->translation_ = Lerp(camera_->translation_, destination_, kInterpolationRate);
 
+	//追従対象が画面外に出ないように補正
+	camera_->translation_.x = max(camera_->translation_.x, destination_.x + targetMargin.left);
+	camera_->translation_.x = min(camera_->translation_.x, destination_.x + targetMargin.right);
+	camera_->translation_.y = max(camera_->translation_.y, destination_.y + targetMargin.bottom); 
+	camera_->translation_.y = min(camera_->translation_.y, destination_.y + targetMargin.top);
+
+
 	//移動範囲制限
 	camera_->translation_.x = max(camera_->translation_.x, movableArea_.left);
 	camera_->translation_.x = min(camera_->translation_.x, movableArea_.right);
