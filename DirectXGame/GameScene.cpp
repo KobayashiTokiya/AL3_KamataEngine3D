@@ -37,15 +37,6 @@ void GameScene::Initialize() {
 	// カメラの初期化
 	camera_.Initialize();
 
-	// 02_01からの追加
-	//  自キャラの生成
-	player_ = new Player();
-	// 自キャラの初期化
-	playerModel_ = Model::CreateFromOBJ("player");
-
-	Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(2, 18);
-	player_->Initialize(playerModel_,&camera_,playerPosition);
-	
 	// 3Dモデルの生成
 	// Model::Create();からModel::CreateFromOBJ("block", true);の変更することによってブロックに変更出来る
 	modelBlock_ = Model::CreateFromOBJ("block", true);
@@ -60,33 +51,46 @@ void GameScene::Initialize() {
 	camera_.farZ = 1000.0f;
 	camera_.Initialize();
 
-	
-
 	// 02_04_マップチップフィールド
 	mapChipField_ = new MapChipField;
-	//LoadMapChipCsvの所にscvを入れることによってマップチップが出る
+	// LoadMapChipCsvの所にscvを入れることによってマップチップが出る
 	mapChipField_->LoadMapChipCsv("Resources/blocks.csv");
 	GenerateBlocks();
 	// デバッグカメラの生成
 	debugCamera_ = new DebugCamera(WinApp::kWindowWidth, WinApp::kWindowHeight);
 
+	//プレイヤーがマップチップの参照する関係上、
+	// プレイヤーがマップチップに依存するので
+	// 02_07によってマップチップフィールドのあとにプレイヤーにする
+	// 02_01からの追加
+	//  自キャラの生成
+	player_ = new Player();
+	// 自キャラの初期化
+	playerModel_ = Model::CreateFromOBJ("player");
 
-	//02_06
-	//生成
-	CController_= new CameraController();
-	//初期化
+	Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(2, 18);
+	
+	// 02_07
+	player_->SetMapChipField(mapChipField_);
+	
+	player_->Initialize(playerModel_, &camera_, playerPosition);
+
+	// 02_06
+	// 生成
+	CController_ = new CameraController();
+	// 初期化
 	CController_->Initiallize(&camera_);
-	//追従対象セット
+	// 追従対象セット
 	CController_->SetTarget(player_);
-	//リセット
+	// リセット
 	CController_->Reset();
 
-	//カメラコントローラ
+	// カメラコントローラ
 	CameraController::Rect cameraArea = {12.0f, 100 - 12.0f, 6.0f, 6.0f};
 	CController_->SetMovableArea(cameraArea);
 }
 
-//ブロック
+// ブロック
 void GameScene::GenerateBlocks() {
 
 	uint32_t numBlockVirtical = mapChipField_->GetNumBlockVirtical();
@@ -156,7 +160,7 @@ void GameScene::Update() {
 	// 02_03
 	skydome_->Update();
 
-	//02_06
+	// 02_06
 	CController_->Update();
 }
 

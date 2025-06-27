@@ -22,6 +22,13 @@ class MapChipField
 {
 public:
 	
+	//02_07
+	struct  IndexSet 
+	{
+		uint32_t xIndex;
+		uint32_t yIndex;
+	};
+
 	void ResetMapChipData();
 
 	void LoadMapChipCsv(const std::string& filePath);
@@ -31,6 +38,8 @@ public:
 
 	uint32_t GetNumBlockVirtical() const { return kNumBlockVirtical; }
 	uint32_t GetNumBlockHorizontal() const { return kNumBlockHorizontal; }
+
+	
 
 private:
 	// 1ブロックのサイズ
@@ -43,4 +52,7 @@ private:
 	static inline const uint32_t kNumBlockHorizontal = 100;
 
 	MapChipData mapChipData_;
+	
+	// 02_07
+	IndexSet GetMapChipIndexSetByPosition(const Vector3& position);
 };

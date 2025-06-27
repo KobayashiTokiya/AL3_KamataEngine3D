@@ -8,7 +8,11 @@
 
 using namespace KamataEngine;
 
-class Player {
+//MapChipFieldを前方宣言
+class MapChipField;
+
+class Player 
+{
 public:
 	void Initialize(Model* model, Camera* camera, const Vector3& position);
 
@@ -22,9 +26,26 @@ public:
 		kLeft,
 	};
 
+	enum Corner
+	{
+		kRightBottom,//右下
+		kLeftBottom, //左下
+		kRightTop,   //右上
+		kLeftTop,    //左上
+
+		kNumCorner   //要素数
+	};
+
 	const WorldTransform& GetWorldTransform() const { return worldTransform_;}
 
 	const KamataEngine::Vector3& GetVelocty() const { return velocity_; }
+
+	// 02_07
+	void SetMapChipField(MapChipField* mapChipField) { mapChipField_ = mapChipField; }
+
+	void InputMove();
+
+	Vector3 CornerPosition(const Vector3& center, Corner corner);
 
 private:
 	WorldTransform worldTransform_;
@@ -58,4 +79,31 @@ private:
 	static inline const float kLimitFallSpeed = 0.5f;
 	// ジャンプ初速(上方向)
 	static inline const float kJumpAcceleration = 20.0f;
+	
+	// 02_07
+	//マップチップによるフィールド
+	MapChipField* mapChipField_ = nullptr;
+	// キャラクターの当たり判定サイズ
+	//ブロックより小さい設定にすることで隙間を無理なく通れる
+	static inline const float kWidth = 0.8f;
+	static inline const float kHeight = 0.8f;
+	//　マップとの当たり判定情報
+	struct CollisionMapInfo
+	{
+		//天井衝突フラグ
+		bool ceiling= false;
+		//着地フラグ
+		bool landing = false;
+		//壁接触フラグ
+		bool hitWall = false;
+		//移動量
+		Vector3 move;
+	};
+	
+	void CheckMapCollision(CollisionMapInfo& info);
+	//上下左右のマップ衝突判定
+	void CheckMapCollisionUp(CollisionMapInfo& info);
+	void CheckMapCollisionDown(CollisionMapInfo& info);
+	void CheckMapCollisionRight(CollisionMapInfo& info);
+	void CheckMapCollisionLeft(CollisionMapInfo& info);
 };
