@@ -36,15 +36,6 @@ void GameScene::Initialize() {
 	worldTransform_.Initialize();
 	// カメラの初期化
 	camera_.Initialize();
-
-	// 02_01からの追加
-	//  自キャラの生成
-	player_ = new Player();
-	// 自キャラの初期化
-	playerModel_ = Model::CreateFromOBJ("player");
-
-	Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(2, 18);
-	player_->Initialize(playerModel_,&camera_,playerPosition);
 	
 	// 3Dモデルの生成
 	// Model::Create();からModel::CreateFromOBJ("block", true);の変更することによってブロックに変更出来る
@@ -60,7 +51,19 @@ void GameScene::Initialize() {
 	camera_.farZ = 1000.0f;
 	camera_.Initialize();
 
+	//プレイヤーがマップチップを参照する関係上、
+	//プレイヤーがマップチップに依存するため
+	//マップチップフィールド->プレイヤー
+	// 02_01からの追加
+	//  自キャラの生成
+	player_ = new Player();
+	// 自キャラの初期化
+	playerModel_ = Model::CreateFromOBJ("player");
+
+	Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(2, 18);
 	
+	player_->Initialize(playerModel_,&camera_,playerPosition);
+
 
 	// 02_04_マップチップフィールド
 	mapChipField_ = new MapChipField;
@@ -70,7 +73,7 @@ void GameScene::Initialize() {
 	// デバッグカメラの生成
 	debugCamera_ = new DebugCamera(WinApp::kWindowWidth, WinApp::kWindowHeight);
 
-
+	
 	//02_06
 	//生成
 	CController_= new CameraController();
