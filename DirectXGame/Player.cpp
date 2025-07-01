@@ -2,6 +2,7 @@
 #define NOMINMAX
 
 #include "Player.h"
+#include "MapChipField.h"
 #include <cassert>
 
 void Player::Initialize(Model* model, Camera* camera, const Vector3& position) {
@@ -140,6 +141,7 @@ void Player::CheckMapCollision(CollisionMapInfo& info) {
 	CheckMapCollisionLeft(info);
 }
 
+//上方向判定
 void Player::CheckMapCollisionUp(CollisionMapInfo& info) {
 
 	if (info.move.y <= 0) 
@@ -153,6 +155,19 @@ void Player::CheckMapCollisionUp(CollisionMapInfo& info) {
 	{
 		positionNew[i] = CornerPosition(worldTransform_.translation_ + info.move, static_cast<Corner>(i));
 	}
+
+	MapChipField mapChipType;
+	//
+	bool hit = false;
+	//
+	MapChipField::IndexSet indexSet;
+	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionNew[kLeftTop]);
+	mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
+	if (mapChipType==MapChipType::kBlock)
+	{
+		hit = true;
+	}
+	//
 }
 
 Vector3 Player::CornerPosition(const Vector3& center, Corner corner) {
@@ -165,4 +180,7 @@ Vector3 Player::CornerPosition(const Vector3& center, Corner corner) {
 	return center + offsetTable[static_cast<uint32_t>(corner)];
 }
 
-void Player::Draw() { model_->Draw(worldTransform_, *camera_); }
+void Player::Draw() 
+{
+	model_->Draw(worldTransform_, *camera_);
+}

@@ -39,7 +39,8 @@ public:
 	uint32_t GetNumBlockVirtical() const { return kNumBlockVirtical; }
 	uint32_t GetNumBlockHorizontal() const { return kNumBlockHorizontal; }
 
-	
+	// 02_07
+	IndexSet GetMapChipIndexSetByPosition(const Vector3& position);
 
 private:
 	// 1ブロックのサイズ
@@ -53,6 +54,5 @@ private:
 
 	MapChipData mapChipData_;
 	
-	// 02_07
-	IndexSet GetMapChipIndexSetByPosition(const Vector3& position);
+	
 };
