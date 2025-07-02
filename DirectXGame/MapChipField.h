@@ -29,6 +29,20 @@ public:
 		uint32_t yIndex;
 	};
 
+	// 範囲矩形
+	struct Rect 
+	{
+		//左端
+		float left;
+		//右端
+		float right;
+		//下端
+		float bottom;
+		//上端
+		float top;
+	
+	};
+
 	void ResetMapChipData();
 
 	void LoadMapChipCsv(const std::string& filePath);
@@ -41,6 +55,8 @@ public:
 
 	// 02_07
 	IndexSet GetMapChipIndexSetByPosition(const Vector3& position);
+
+	Rect GetRectByIndex(uint32_t xIndex, uint32_t yIndex);
 
 private:
 	// 1ブロックのサイズ

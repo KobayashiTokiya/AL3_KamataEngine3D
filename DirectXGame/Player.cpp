@@ -156,18 +156,26 @@ void Player::CheckMapCollisionUp(CollisionMapInfo& info) {
 		positionNew[i] = CornerPosition(worldTransform_.translation_ + info.move, static_cast<Corner>(i));
 	}
 
-	MapChipField mapChipType;
-	//
+	MapChipType mapChipType;
+	//真上の当たり判定
 	bool hit = false;
-	//
+	//左上点の判定
 	MapChipField::IndexSet indexSet;
 	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionNew[kLeftTop]);
 	mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
+	
 	if (mapChipType==MapChipType::kBlock)
 	{
 		hit = true;
 	}
-	//
+	//右上点の当たり判定
+	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionNew[kRightTop]);
+	mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
+
+	if (mapChipType == MapChipType::kBlock) 
+	{
+		hit = true;
+	}
 }
 
 Vector3 Player::CornerPosition(const Vector3& center, Corner corner) {
