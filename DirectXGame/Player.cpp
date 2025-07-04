@@ -21,15 +21,19 @@ void Player::Initialize(Model* model, Camera* camera, const Vector3& position) {
 }
 
 // 移動入力
-void Player::InputMove() {
-	if (onGround_) {
+void Player::InputMove() 
+{
+	if (onGround_)
+	{
 
 		// 左右移動操作
-		if (Input::GetInstance()->PushKey(DIK_RIGHT) || Input::GetInstance()->PushKey(DIK_LEFT)) {
+		if (Input::GetInstance()->PushKey(DIK_RIGHT) || Input::GetInstance()->PushKey(DIK_LEFT)) 
+		{
 
 			// 左右加速
 			Vector3 acceleration = {};
-			if (Input::GetInstance()->PushKey(DIK_RIGHT)) {
+			if (Input::GetInstance()->PushKey(DIK_RIGHT)) 
+			{
 
 				if (velocity_.x < 0.0f) {
 					// 旋回の最初は移動減衰をかける
@@ -41,7 +45,8 @@ void Player::InputMove() {
 					turnFirstRotationY_ = worldTransform_.rotation_.y;
 					turnTimer_ = kTimeTurn;
 				}
-			} else if (Input::GetInstance()->PushKey(DIK_LEFT)) {
+			}
+			else if (Input::GetInstance()->PushKey(DIK_LEFT)) {
 				if (velocity_.x > 0.0f) {
 					// 旋回の最初は移動減衰をかける
 					velocity_.x *= (1.0f - kAttenuation);
@@ -133,7 +138,31 @@ void Player::CheckMapCollisionUp(CollisionMapInfo& info) {
 	}
 }
 
-void Player::CheckMapCollisionDown(CollisionMapInfo& info) { info; }
+void Player::CheckMapCollisionDown(CollisionMapInfo& info) 
+{
+	info;
+
+	//下降あり？
+	if (info.move.y>=0)
+	{
+		return;
+	}
+
+	//移動後の４つの角の座標の計算
+	std::array<Vector3, kNumCorner> positionNew;
+
+	for (uint32_t i = 0; i < positionNew.size(); ++i) 
+	{
+		positionNew[i] = CornerPosition(worldTransform_.translation_ + info.move, static_cast<Corner>(i));
+	}
+
+
+}
+
+
+
+
+
 void Player::CheckMapCollisionRight(CollisionMapInfo& info) { info; }
 void Player::CheckMapCollisionLeft(CollisionMapInfo& info) { info; }
 
