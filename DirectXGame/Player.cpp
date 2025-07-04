@@ -35,7 +35,7 @@ void Player::InputMove() {
 					// 旋回の最初は移動減衰をかける
 					velocity_.x *= (1.0f - kAttenuation);
 				}
-				acceleration.x += kAcceleration / 60.0f;
+				acceleration.x += kAcceleration /10.0f;
 				if (lrDirection_ != LRDirection::kRight) {
 					lrDirection_ = LRDirection::kRight;
 					turnFirstRotationY_ = worldTransform_.rotation_.y;
@@ -46,7 +46,7 @@ void Player::InputMove() {
 					// 旋回の最初は移動減衰をかける
 					velocity_.x *= (1.0f - kAttenuation);
 				}
-				acceleration.x -= kAcceleration / 60.0f;
+				acceleration.x -= kAcceleration /10.0f;
 				if (lrDirection_ != LRDirection::kLeft) {
 					lrDirection_ = LRDirection::kLeft;
 					turnFirstRotationY_ = worldTransform_.rotation_.y;
