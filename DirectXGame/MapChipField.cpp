@@ -96,13 +96,14 @@ MapChipField::IndexSet MapChipField::GetMapChipIndexSetByPosition(const Vector3&
 
 MapChipField::Rect MapChipField::GetRectByIndex(uint32_t xIndex, uint32_t yIndex)
 {
+	//指定ブロックの中心座標を取得する
 	Vector3 center = GetMapChipPositionByIndex(xIndex, yIndex); 
 
 	Rect rect;
 	rect.left = center.x - kBlockWidth / 2.0f;
-	rect.right = center.x - kBlockWidth / 2.0f;
+	rect.right = center.x + kBlockWidth / 2.0f;
 	rect.bottom = center.y - kBlockWidth / 2.0f;
-	rect.top = center.y - kBlockWidth / 2.0f;
+	rect.top = center.y + kBlockWidth / 2.0f;
 
 	return rect;
 }

@@ -47,6 +47,7 @@ public:
 
 	Vector3 CornerPosition(const Vector3& center, Corner corner);
 
+
 private:
 	WorldTransform worldTransform_;
 
@@ -106,4 +107,6 @@ private:
 	void CheckMapCollisionDown(CollisionMapInfo& info);
 	void CheckMapCollisionRight(CollisionMapInfo& info);
 	void CheckMapCollisionLeft(CollisionMapInfo& info);
+
+	static inline const float kBlank = 0.04f;
 };
