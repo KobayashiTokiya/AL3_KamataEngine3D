@@ -109,4 +109,7 @@ private:
 	void CheckMapCollisionLeft(CollisionMapInfo& info);
 
 	static inline const float kBlank = 0.04f;
+
+	void UpdateOnGround(const CollisionMapInfo& info);
+
 };
