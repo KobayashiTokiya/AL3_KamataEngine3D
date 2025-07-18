@@ -4,6 +4,8 @@
 #include "Player.h"
 #include "Skydome.h"
 #include "CameraController.h"
+#include "Enemy.h"
+
 #include <vector>
 
 class GameScene 
@@ -55,4 +57,9 @@ private:
 
 	//02_06
 	CameraController* CController_=nullptr;
+	
+	//02_09 エネミークラス
+	Enemy* enemy_ = nullptr;
+	//エネミーモデル
+	Model* enemyModel_ = nullptr;
 };

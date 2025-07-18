@@ -1,4 +1,5 @@
 #include "GameScene.h"
+#include "Enemy.h"
 #include "Math.h"
 
 using namespace KamataEngine;
@@ -23,6 +24,9 @@ GameScene::~GameScene() {
 	// 02_04
 	// mapChipField_をdeleteする
 	delete mapChipField_;
+
+	// 02_09 enemyを削除する
+	delete enemy_;
 }
 
 void GameScene::Initialize() {
@@ -59,20 +63,20 @@ void GameScene::Initialize() {
 	// デバッグカメラの生成
 	debugCamera_ = new DebugCamera(WinApp::kWindowWidth, WinApp::kWindowHeight);
 
-	//プレイヤーがマップチップの参照する関係上、
-	// プレイヤーがマップチップに依存するので
-	// 02_07によってマップチップフィールドのあとにプレイヤーにする
-	// 02_01からの追加
-	//  自キャラの生成
+	// プレイヤーがマップチップの参照する関係上、
+	//  プレイヤーがマップチップに依存するので
+	//  02_07によってマップチップフィールドのあとにプレイヤーにする
+	//  02_01からの追加
+	//   自キャラの生成
 	player_ = new Player();
 	// 自キャラの初期化
 	playerModel_ = Model::CreateFromOBJ("player");
 
 	Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(2, 18);
-	
+
 	// 02_07
 	player_->SetMapChipField(mapChipField_);
-	
+
 	player_->Initialize(playerModel_, &camera_, playerPosition);
 
 	// 02_06
@@ -88,6 +92,14 @@ void GameScene::Initialize() {
 	// カメラコントローラ
 	CameraController::Rect cameraArea = {12.0f, 100 - 12.0f, 6.0f, 6.0f};
 	CController_->SetMovableArea(cameraArea);
+
+	// 02_09 敵クラス
+	enemy_ = new Enemy();
+	// 敵モデル
+	enemyModel_ = Model::CreateFromOBJ("enemy");
+	// 敵位置決めて敵クラス初期化
+	Vector3 enemyPosition = mapChipField_->GetMapChipPositionByIndex(12, 18);
+	enemy_->Initialize(enemyModel_, &camera_, enemyPosition);
 }
 
 // ブロック
@@ -119,6 +131,18 @@ void GameScene::GenerateBlocks() {
 void GameScene::Update() {
 
 	player_->Update();
+
+	// デバッグカメラの更新
+	debugCamera_->Update();
+
+	// 02_03
+	skydome_->Update();
+
+	// 02_06
+	CController_->Update();
+
+	//02_09 敵更新
+	enemy_->Update();
 
 #ifdef _DEBUG
 	if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
@@ -153,15 +177,6 @@ void GameScene::Update() {
 			worldTransformBlock->TransferMatrix();
 		}
 	}
-
-	// デバッグカメラの更新
-	debugCamera_->Update();
-
-	// 02_03
-	skydome_->Update();
-
-	// 02_06
-	CController_->Update();
 }
 
 void GameScene::Draw() {
@@ -185,6 +200,9 @@ void GameScene::Draw() {
 	}
 	// 02_03
 	skydome_->Draw();
+
+	// 02_09 敵描画
+	enemy_->Draw();
 
 	Model::PostDraw();
 
