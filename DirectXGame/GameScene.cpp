@@ -27,6 +27,12 @@ GameScene::~GameScene() {
 
 	// 02_09 enemyを削除する
 	delete enemy_;
+
+	// 02_10
+	for (Enemy* enemy : enemies_)
+	{
+		delete enemy;
+	}
 }
 
 void GameScene::Initialize() {
@@ -98,8 +104,17 @@ void GameScene::Initialize() {
 	// 敵モデル
 	enemyModel_ = Model::CreateFromOBJ("enemy");
 	// 敵位置決めて敵クラス初期化
-	Vector3 enemyPosition = mapChipField_->GetMapChipPositionByIndex(12, 18);
-	enemy_->Initialize(enemyModel_, &camera_, enemyPosition);
+	//Vector3 enemyPosition = mapChipField_->GetMapChipPositionByIndex(12, 18);
+	//enemy_->Initialize(enemyModel_, &camera_, enemyPosition);
+
+	// 02_10
+	for (int32_t i = 0; i < 2; i++) {
+		Enemy* newEnemy = new Enemy();
+		Vector3 enemyPosition = mapChipField_->GetMapChipPositionByIndex(14 + i * 2, 18);
+		newEnemy->Initialize(enemyModel_, &camera_, enemyPosition);
+
+		enemies_.push_back(newEnemy);
+	}
 }
 
 // ブロック
@@ -141,8 +156,14 @@ void GameScene::Update() {
 	// 02_06
 	CController_->Update();
 
-	//02_09 敵更新
-	enemy_->Update();
+	// 02_09 敵更新
+	//enemy_->Update();
+
+	// 02_10
+	for (Enemy* enemy : enemies_) 
+	{
+		enemy->Update();
+	}
 
 #ifdef _DEBUG
 	if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
@@ -202,7 +223,13 @@ void GameScene::Draw() {
 	skydome_->Draw();
 
 	// 02_09 敵描画
-	enemy_->Draw();
+	//enemy_->Draw();
+
+	// 02_10
+	for (Enemy* enemy : enemies_)
+	{
+		enemy->Draw();
+	}
 
 	Model::PostDraw();
 

@@ -62,4 +62,6 @@ private:
 	Enemy* enemy_ = nullptr;
 	//エネミーモデル
 	Model* enemyModel_ = nullptr;
+
+	std::list<Enemy*> enemies_;
 };
