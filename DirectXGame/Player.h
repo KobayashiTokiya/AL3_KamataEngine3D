@@ -8,11 +8,10 @@
 
 using namespace KamataEngine;
 
-//MapChipFieldを前方宣言
+// MapChipFieldを前方宣言
 class MapChipField;
 
-class Player 
-{
+class Player {
 public:
 	void Initialize(Model* model, Camera* camera, const Vector3& position);
 
@@ -20,23 +19,21 @@ public:
 
 	void Draw();
 
-	enum class LRDirection
-	{
+	enum class LRDirection {
 		kRight,
 		kLeft,
 	};
 
-	enum Corner
-	{
-		kRightBottom,//右下
-		kLeftBottom, //左下
-		kRightTop,   //右上
-		kLeftTop,    //左上
+	enum Corner {
+		kRightBottom, // 右下
+		kLeftBottom,  // 左下
+		kRightTop,    // 右上
+		kLeftTop,     // 左上
 
-		kNumCorner   //要素数
+		kNumCorner // 要素数
 	};
 
-	const WorldTransform& GetWorldTransform() const { return worldTransform_;}
+	const WorldTransform& GetWorldTransform() const { return worldTransform_; }
 
 	const KamataEngine::Vector3& GetVelocty() const { return velocity_; }
 
@@ -47,6 +44,12 @@ public:
 
 	Vector3 CornerPosition(const Vector3& center, Corner corner);
 
+	// 02_10
+	// ワールド座標を取得
+	Vector3 GetWorldPosition();
+
+	//AABBを取得
+	AABB GetAABB();
 
 private:
 	WorldTransform worldTransform_;
@@ -64,7 +67,7 @@ private:
 	static inline const float kAttenuation = 0.05f;
 	// 02_05 最低/最大速度の制限のため
 	static inline const float kLimitRunSpeed = 0.3f;
-	//02_05 顔の向き
+	// 02_05 顔の向き
 	LRDirection lrDirection_ = LRDirection::kRight;
 	// 旋回開始時の角度
 	float turnFirstRotationY_ = 0.0f;
@@ -80,29 +83,28 @@ private:
 	static inline const float kLimitFallSpeed = 0.5f;
 	// ジャンプ初速(上方向)
 	static inline const float kJumpAcceleration = 20.0f;
-	
+
 	// 02_07
-	//マップチップによるフィールド
+	// マップチップによるフィールド
 	MapChipField* mapChipField_ = nullptr;
 	// キャラクターの当たり判定サイズ
-	//ブロックより小さい設定にすることで隙間を無理なく通れる
+	// ブロックより小さい設定にすることで隙間を無理なく通れる
 	static inline const float kWidth = 0.8f;
 	static inline const float kHeight = 0.8f;
-	//　マップとの当たり判定情報
-	struct CollisionMapInfo
-	{
-		//天井衝突フラグ
-		bool ceiling= false;
-		//着地フラグ
+	// 　マップとの当たり判定情報
+	struct CollisionMapInfo {
+		// 天井衝突フラグ
+		bool ceiling = false;
+		// 着地フラグ
 		bool landing = false;
-		//壁接触フラグ
+		// 壁接触フラグ
 		bool hitWall = false;
-		//移動量
+		// 移動量
 		Vector3 move;
 	};
-	
+
 	void CheckMapCollision(CollisionMapInfo& info);
-	//上下左右のマップ衝突判定
+	// 上下左右のマップ衝突判定
 	void CheckMapCollisionUp(CollisionMapInfo& info);
 	void CheckMapCollisionDown(CollisionMapInfo& info);
 	void CheckMapCollisionRight(CollisionMapInfo& info);
@@ -110,16 +112,16 @@ private:
 
 	static inline const float kBlank = 0.04f;
 
-	//設置状態の切り替え処理
+	// 設置状態の切り替え処理
 	void UpdateOnGround(const CollisionMapInfo& info);
 
-	//壁接触している場合の処理
+	// 壁接触している場合の処理
 	void UpdateOnWall(const CollisionMapInfo& info);
 
-	//着地時の速度減衰率
+	// 着地時の速度減衰率
 	static inline const float kAttenuationLanding = 0.2f;
-	//微小な数値
+	// 微小な数値
 	static inline const float kGroundSearchHeight = 0.06f;
-	//着地時
+	// 着地時
 	static inline const float kAttenuationWall = 0.2f;
 };

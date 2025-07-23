@@ -63,5 +63,8 @@ private:
 	//エネミーモデル
 	Model* enemyModel_ = nullptr;
 
+	//02_10
 	std::list<Enemy*> enemies_;
+	//全ての当たり判定を行う
+	void CheckAllCollisions();
 };
