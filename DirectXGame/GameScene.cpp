@@ -33,6 +33,9 @@ GameScene::~GameScene() {
 	{
 		delete enemy;
 	}
+
+	delete deathParticles_;
+	delete deathParticlesModel_;
 }
 
 void GameScene::Initialize() {
@@ -115,6 +118,12 @@ void GameScene::Initialize() {
 
 		enemies_.push_back(newEnemy);
 	}
+
+	//02_11
+	deathParticlesModel_ = Model::CreateFromOBJ("deathParticle");
+
+	deathParticles_ = new DeathParticles;
+	deathParticles_->Initialize(deathParticlesModel_, &camera_, playerPosition);
 }
 
 // ブロック
@@ -198,6 +207,15 @@ void GameScene::Update() {
 			worldTransformBlock->TransferMatrix();
 		}
 	}
+
+	// 全ての当たり判定
+	CheckAllCollisions();
+
+	//02_11
+	if (deathParticles_)
+	{
+		deathParticles_->Update();
+	}
 }
 
 void GameScene::Draw() {
@@ -231,6 +249,12 @@ void GameScene::Draw() {
 		enemy->Draw();
 	}
 
+	//02_11
+	if (deathParticles_)
+	{
+		deathParticles_->Draw();
+	}
+
 	Model::PostDraw();
 
 	// スプライト描画前処理
@@ -238,4 +262,35 @@ void GameScene::Draw() {
 
 	// スプライト描画後処理
 	Sprite::PostDraw();
+}
+
+void GameScene::CheckAllCollisions()
+{
+	//判定対象1と2の座標
+	AABB aabb1, aabb2;
+#pragma region 自キャラと敵キャラの当たり判定
+	
+
+	//自キャラの座標
+	aabb1 = player_->GetAABB();
+
+	//自キャラと敵弾全ての当たり判定
+	for (Enemy* enemy:enemies_)
+	{
+		//敵弾の座標
+		aabb2 = enemy->GetAABB();
+
+		//AABB同士の交差判定
+		if (IsCollision(aabb1,aabb2)) 
+		{
+			//自キャラの衝突時コールバックを呼び出す
+			player_->OnCollision(enemy);
+
+			//敵弾の衝突時コールバックを呼び出す
+			enemy->OnCollision(player_);
+		}
+	}
+
+
+#pragma endregion
 }

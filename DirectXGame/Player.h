@@ -11,6 +11,8 @@ using namespace KamataEngine;
 // MapChipFieldを前方宣言
 class MapChipField;
 
+class Enemy;
+
 class Player {
 public:
 	void Initialize(Model* model, Camera* camera, const Vector3& position);
@@ -50,6 +52,9 @@ public:
 
 	//AABBを取得
 	AABB GetAABB();
+
+	//衝突応答
+	void OnCollision(const Enemy* enemy);
 
 private:
 	WorldTransform worldTransform_;

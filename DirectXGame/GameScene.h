@@ -5,6 +5,7 @@
 #include "Skydome.h"
 #include "CameraController.h"
 #include "Enemy.h"
+#include "DeathParticles.h"
 
 #include <vector>
 
@@ -67,4 +68,9 @@ private:
 	std::list<Enemy*> enemies_;
 	//全ての当たり判定を行う
 	void CheckAllCollisions();
+
+	//02_11
+	DeathParticles* deathParticles_ = nullptr;
+
+	Model* deathParticlesModel_ = nullptr;
 };
