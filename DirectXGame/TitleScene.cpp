@@ -9,6 +9,8 @@ TitleScene::~TitleScene()
 { 
 	delete modelPlayer_;
 	delete modelTitle_;
+	//02_13
+	delete fade_;
 }
 
 void TitleScene::Initialize()
@@ -31,16 +33,50 @@ void TitleScene::Initialize()
 	worldTransformPlayer_.rotation_.y = 0.95f * std::numbers::pi_v<float>;
 	worldTransformPlayer_.translation_.x = -2.0f;
 	worldTransformPlayer_.translation_.y = -10.0f;
+
+	//02_13
+	fade_ = new Fade();
+	fade_->Initialize();
+
+	fade_->Start(Fade::Status::FadeIn, 1.0f);
 }
 
 void TitleScene::Update()
 {
-	if (Input::GetInstance()->PushKey(DIK_SPACE))
-	{
-		finished_ = true;
+	//02_13
+	//fade_->Update();
+	
+	switch (phase_) {
+	case Phase::kFadeIn:
+		fade_->Update();
+
+		if (fade_->IsFinished()) 
+		{
+			phase_ = Phase::kMain;
+		}
+		break;
+	case Phase::kMain:
+		if (Input::GetInstance()->PushKey(DIK_SPACE))
+		{
+			fade_->Start(Fade::Status::FadeOut, 1.0f);
+			phase_ = Phase::kFadeOut;
+		}
+		break;
+	case Phase::kFadeOut:
+		fade_->Update();
+		if (fade_->IsFinished())
+		{
+			finished_ = true;
+		}
+		break;
 	}
 
-		counter_ += 1.0f / 60.0f;
+	//if (Input::GetInstance()->PushKey(DIK_SPACE))
+	//{
+	//	finished_ = true;
+	//}
+
+	counter_ += 1.0f / 60.0f;
 	counter_ = std::fmod(counter_, kTimeTitleMove);
 
 	float angle = counter_ / kTimeTitleMove * 2.0f * std::numbers::pi_v<float>;
@@ -65,6 +101,7 @@ void TitleScene::Draw()
 
 	modelTitle_->Draw(worldTransformTitle_, camera_);
 	modelPlayer_->Draw(worldTransformPlayer_, camera_);
-
+	//02_13
+	fade_->Draw();
 	Model::PostDraw();
 };
