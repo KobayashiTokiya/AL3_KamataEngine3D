@@ -25,7 +25,8 @@ void DeathParticles::Update()
 	counter_ += 1.0f / 60.0f;
 
 	// 存続時間の上限に達したら
-	if (counter_ >= kDuration_) {
+	if (counter_ >= kDuration_)
+	{
 		counter_ = kDuration_;
 		// 終了扱いにする
 		isFinished_ = true;
@@ -44,12 +45,13 @@ void DeathParticles::Update()
 		// 移動処理
 		worldTransforms_[i].translation_ += velocity;
 	}
-
-color_.w = std::clamp(1.0f-counter_/kDuration_,0.0f,1.0f);
+	
+	color_.w = std::clamp(1.0f-counter_/kDuration_,0.0f,1.0f);
 	//色変更オブジェクトに色の数値を設定する
 	objectColor_.SetColor(color_);
 	
-	for (auto& worldTransform : worldTransforms_) {
+	for (auto& worldTransform : worldTransforms_)
+	{
 		WorldTransformUpdate(worldTransform);
 	}
 }

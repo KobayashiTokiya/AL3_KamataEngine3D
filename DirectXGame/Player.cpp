@@ -254,7 +254,8 @@ void Player::UpdateOnGround(const CollisionMapInfo& info) {
 
 void Player::UpdateOnWall(const CollisionMapInfo& info) {
 	// 壁接触による減速
-	if (info.hitWall) {
+	if (info.hitWall) 
+	{
 		velocity_.x *= (1.0f - kAttenuationWall);
 	}
 }
@@ -263,13 +264,15 @@ void Player::CheckMapCollisionRight(CollisionMapInfo& info) {
 	info;
 
 	// 右移動あり？
-	if (info.move.x <= 0) {
+	if (info.move.x <= 0)
+	{
 		return;
 	}
 
 	std::array<Vector3, kNumCorner> positionNew;
 
-	for (uint32_t i = 0; i < positionNew.size(); i++) {
+	for (uint32_t i = 0; i < positionNew.size(); i++)
+	{
 		positionNew[i] = CornerPosition(worldTransform_.translation_ + info.move, static_cast<Corner>(i));
 	}
 
@@ -482,9 +485,12 @@ AABB Player::GetAABB()
 
 void Player::OnCollision(const Enemy* enemy)
 { 
+	//不使用
 	(void)enemy;
 	//ジャンプ開始
-	velocity_ += Vector3(0,kJumpAcceleration/60.0f,0);
+	//velocity_ += Vector3(0,kJumpAcceleration/60.0f,0);
+	//02_12 書き換え
+	isDead_ = true;
 }
 
 

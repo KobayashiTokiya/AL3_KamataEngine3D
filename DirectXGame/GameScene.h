@@ -9,6 +9,8 @@
 
 #include <vector>
 
+
+
 class GameScene 
 {
 public:
@@ -26,9 +28,24 @@ public:
 	//
 	void GenerateBlocks();
 
+	//02_12
+	void ChangePhase();
+
+	bool IsFinished() const { return finished_; }
 private:
+	// 02_12 ゲームのフェーズ(型)
+	enum class Phase {
+		kPlay,  // ゲームプレイ
+		kDeath, // デス演出
+	};
+	
+	// ゲームの現在フェーズ(変数)
+	Phase phase_;
+
 	// テクスチャハンドル
 	uint32_t textureHandle_ = 0;
+	// スプライト
+	KamataEngine::Sprite* sprite_ = nullptr;
 	// 3Dモデル
 	KamataEngine::Model* model_ = nullptr;
 	// ワールドトランスフォーム
@@ -73,4 +90,9 @@ private:
 	DeathParticles* deathParticles_ = nullptr;
 
 	Model* deathParticlesModel_ = nullptr;
+
+	//02_12
+	bool finished_ = false;
+
+	
 };
