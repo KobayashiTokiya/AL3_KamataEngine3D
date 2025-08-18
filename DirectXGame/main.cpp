@@ -18,6 +18,7 @@ enum class Scene {
 // 現在シーン（型）
 Scene scene = Scene::kUnknown;
 
+
 // 02_12
 void ChangeScene() {
 
