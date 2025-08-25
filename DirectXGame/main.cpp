@@ -1,6 +1,7 @@
 #include "KamataEngine.h"
 #include "GameScene.h"
 #include "TitleScene.h" // 02_12 21枚目
+#include "GameOver.h"
 #include <Windows.h>
 
 using namespace KamataEngine;
@@ -8,12 +9,15 @@ using namespace KamataEngine;
 // 02_12
 TitleScene *titleScene = nullptr; 
 GameScene *gameScene = nullptr;
+GameOver *gameOver = nullptr;
 
 // 02_12
-enum class Scene {
+enum class Scene
+{
 	kUnknown = 0,
 	kTitle,
 	kGame,
+	kGameOver,
 };
 // 現在シーン（型）
 Scene scene = Scene::kUnknown;
@@ -35,13 +39,25 @@ void ChangeScene() {
 	case Scene::kGame:
 		if (gameScene->IsFinished()) {
 			// シーン変更
-			scene = Scene::kTitle;
+			scene = Scene::kGameOver;
 			delete gameScene;
 			gameScene = nullptr;
-			titleScene = new TitleScene;
-			titleScene->Initialize();
+			gameOver = new GameOver;
+			gameOver->Initialize();
 		}
 	break;
+	case Scene::kGameOver:
+		if (gameOver->IsFinished())
+		{
+			//シーン変更
+			scene = Scene::kTitle;
+			//旧シーンの開放
+			delete gameOver;
+			gameOver = nullptr;
+			//新シーンの生成と初期化
+			titleScene = new TitleScene();
+			titleScene->Initialize();
+		}
 	}
 }
 
@@ -55,7 +71,11 @@ void UpdateScene() {
 	case Scene::kGame:
 		gameScene->Update();
 		break;
+	case Scene::kGameOver:
+		gameOver->Update();
+		break;
 	}
+
 }
 
 // 02_12
@@ -66,6 +86,9 @@ void DrawScene() {
 		break;
 	case Scene::kGame:
 		gameScene->Draw();
+		break;
+	case Scene::kGameOver:
+		gameOver->Draw();
 		break;
 	}
 }
