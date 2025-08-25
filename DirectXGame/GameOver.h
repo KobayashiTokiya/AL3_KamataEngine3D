@@ -24,14 +24,18 @@ public:
 	bool IsFinished() const { return finished_; }
 
 private:
-	static inline const float kTimeTitleMove = 2.0f;
+	static inline const float kTimeGameOverMove = 2.0f;
 
 	Camera camera_;
-	WorldTransform worldTransformTitle_;
+	WorldTransform worldTransformGameOver_;
 	WorldTransform worldTransformPlayer_;
+	WorldTransform worldTransformEnemy1_;
+	WorldTransform worldTransformEnemy2_;
 
 	Model* modelPlayer_ = nullptr;
-	Model* modelTitle_ = nullptr;
+	Model* modelGameOver_ = nullptr;
+	Model* modelEnemy1_ = nullptr;
+	Model* modelEnemy2_ = nullptr;
 
 	float counter_ = 0.0f;
 

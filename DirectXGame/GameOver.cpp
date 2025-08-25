@@ -6,31 +6,53 @@ using namespace KamataEngine;
 
 GameOver::~GameOver() {
 	delete modelPlayer_;
-	delete modelTitle_;
+	delete modelGameOver_;
+	delete modelEnemy1_;
+	delete modelEnemy2_;
 	// 02_13
 	delete fade_;
 }
 
 void GameOver::Initialize() {
-	modelTitle_ = Model::CreateFromOBJ("titleFont", true);
-	modelPlayer_ = Model::CreateFromOBJ("enemy");
-
+	modelGameOver_ = Model::CreateFromOBJ("gameOver", true);
+	modelPlayer_ = Model::CreateFromOBJ("player");
+	modelEnemy1_ = Model::CreateFromOBJ("enemy");
+	modelEnemy2_ = Model::CreateFromOBJ("enemy");
 	// カメラ初期化
 	camera_.Initialize();
 
-	const float kPlayerTitle = 2.0f;
+	const float kGameOver = 2.0f;
 
-	worldTransformTitle_.Initialize();
-	worldTransformTitle_.scale_ = {kPlayerTitle, kPlayerTitle, kPlayerTitle};
+	worldTransformGameOver_.Initialize();
+	worldTransformGameOver_.scale_ = {kGameOver, kGameOver, kGameOver};
 
-	const float kPlayerScale = 10.0f;
+	const float kPlayerScale = 7.0f;
 
 	worldTransformPlayer_.Initialize();
 	worldTransformPlayer_.scale_ = {kPlayerScale, kPlayerScale, kPlayerScale};
-	worldTransformPlayer_.rotation_.y = 0.95f * std::numbers::pi_v<float>;
-	worldTransformPlayer_.translation_.x = -2.0f;
+	worldTransformPlayer_.rotation_.z = 80.0f;
+	worldTransformPlayer_.rotation_.y = 1.0f * std::numbers::pi_v<float>;
+	worldTransformPlayer_.translation_.x = 0.0f;
 	worldTransformPlayer_.translation_.y = -10.0f;
 
+	const float kEnemyScale1 = 10.0f;
+
+	worldTransformEnemy1_.Initialize();
+	worldTransformEnemy1_.scale_ = {kEnemyScale1, kEnemyScale1, kEnemyScale1};
+	worldTransformEnemy1_.rotation_.y = -0.8f * std::numbers::pi_v<float>;
+	worldTransformEnemy1_.translation_.x = 15.0f;
+	worldTransformEnemy1_.translation_.y = -10.0f;
+	worldTransformEnemy1_.translation_.z = 20.0f;
+
+	const float kEnemyScale2 = 10.0f;
+
+	worldTransformEnemy2_.Initialize();
+	worldTransformEnemy2_.scale_ = {kEnemyScale2, kEnemyScale2, kEnemyScale2};
+	worldTransformEnemy2_.rotation_.y = 0.8f * std::numbers::pi_v<float>;
+	worldTransformEnemy2_.translation_.x = -15.0f;
+	worldTransformEnemy2_.translation_.y = -10.0f;
+	worldTransformEnemy2_.translation_.z = 20.0f;
+	
 	// 02_13
 	fade_ = new Fade();
 	fade_->Initialize();
@@ -70,18 +92,22 @@ void GameOver::Update() {
 	// }
 
 	counter_ += 1.0f / 60.0f;
-	counter_ = std::fmod(counter_, kTimeTitleMove);
+	counter_ = std::fmod(counter_, kTimeGameOverMove);
 
-	float angle = counter_ / kTimeTitleMove * 2.0f * std::numbers::pi_v<float>;
+	float angle = counter_ / kTimeGameOverMove * 2.0f * std::numbers::pi_v<float>;
 
-	worldTransformTitle_.translation_.y = std::sin(angle) + 10.0f;
+	worldTransformGameOver_.translation_.y = std::sin(angle) + 10.0f;
 
 	camera_.TransferMatrix();
 
 	// アフィン変換～DirectXに転送(タイトル座標)
-	WorldTransformUpdate(worldTransformTitle_);
+	WorldTransformUpdate(worldTransformGameOver_);
 	// アフィン変換～DirectXに転送（プレイヤー座標）
 	WorldTransformUpdate(worldTransformPlayer_);
+	// アフィン変換～DirectXに転送（エネミー1座標）
+	WorldTransformUpdate(worldTransformEnemy1_);
+	// アフィン変換～DirectXに転送（エネミー2座標）
+	WorldTransformUpdate(worldTransformEnemy2_);
 };
 
 void GameOver::Draw() {
@@ -91,8 +117,10 @@ void GameOver::Draw() {
 
 	Model::PreDraw(commandList);
 
-	modelTitle_->Draw(worldTransformTitle_, camera_);
+	modelGameOver_->Draw(worldTransformGameOver_, camera_);
 	modelPlayer_->Draw(worldTransformPlayer_, camera_);
+	modelEnemy1_->Draw(worldTransformEnemy1_, camera_);
+	modelEnemy2_->Draw(worldTransformEnemy2_, camera_);
 	// 02_13
 	fade_->Draw();
 	Model::PostDraw();
