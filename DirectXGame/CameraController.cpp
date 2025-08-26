@@ -14,7 +14,7 @@ void CameraController::Update()
 	const WorldTransform& targetWorldTransform = target_->GetWorldTransform();
 	
 	// 02_06 p29
-	const Vector3& targetVelocty = target_->GetVelocty();
+	const Vector3& targetVelocty = target_->GetVelocity();
 	
 	//追従対象のオフセットと追従対象の速度からカメラの座標を計算
 	//destination_は、目標座標
