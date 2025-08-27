@@ -10,6 +10,14 @@ class Enemy
 public:
 	//~Enemy();
 
+	// 02_15 振るまい
+	enum class Behavior 
+	{
+		kUnknown = -1, // 無効な状態
+		kWalk,         // 歩行状態
+		kDefeated,     // やられ状態
+	};
+
 	// 初期化
 	void Initialize(Model *model,Camera* camera,const Vector3 &position);
 
@@ -25,6 +33,11 @@ public:
 	Vector3 GetWorldPosition();
 	//衝突応答
 	void OnCollision(const Player* player);
+
+	// 02_15 
+	bool IsDead() const { return isDead_; }
+	
+	bool IsCollisionDisabled() const { return isCollisionDisabled_; }
 
 private:
 	WorldTransform worldTransform_;
@@ -53,5 +66,16 @@ private:
 	static inline const float kWidth = 0.8f;
 	static inline const float kHeight = 0.8f;
 
+	// 02_15 
+	bool isDead_ = false;
 
+	Behavior behavior_ = Behavior::kWalk;
+	Behavior behaviorRequest_ = Behavior::kUnknown;
+
+	static inline const float kDefeatedTime = 0.6f;
+	static inline const float kDefeatedMotionAngleStart = 0.0f;
+	static inline const float kDefeatedMotionAngleEnd = -60.0f;
+	float counter_ = 0.0f; // カウンター
+
+	bool isCollisionDisabled_ = false;
 };

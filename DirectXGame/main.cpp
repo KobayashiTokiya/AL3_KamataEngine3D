@@ -2,6 +2,7 @@
 #include "GameScene.h"
 #include "TitleScene.h" // 02_12 21枚目
 #include "GameOver.h"
+
 #include <Windows.h>
 
 using namespace KamataEngine;
@@ -18,6 +19,7 @@ enum class Scene
 	kTitle,
 	kGame,
 	kGameOver,
+	kGameCrear,
 };
 // 現在シーン（型）
 Scene scene = Scene::kUnknown;
@@ -58,6 +60,7 @@ void ChangeScene() {
 			titleScene = new TitleScene();
 			titleScene->Initialize();
 		}
+	
 	}
 }
 
@@ -89,6 +92,9 @@ void DrawScene() {
 		break;
 	case Scene::kGameOver:
 		gameOver->Draw();
+		break;
+	case Scene::kGameCrear:
+		
 		break;
 	}
 }
@@ -158,6 +164,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	// 02_12 35枚目 各種解放
 	delete titleScene;
 	delete gameScene;
+	delete gameOver;
 
 	// エンジンの終了処理
 	KamataEngine::Finalize();

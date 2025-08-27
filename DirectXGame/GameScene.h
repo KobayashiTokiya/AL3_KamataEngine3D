@@ -1,11 +1,13 @@
 #pragma once
 #include "KamataEngine.h"
-#include "MapChipField.h"
 #include "Player.h"
 #include "Skydome.h"
+#include "MapChipField.h"
 #include "CameraController.h"
 #include "Enemy.h"
 #include "DeathParticles.h"
+#include "Fade.h"
+
 
 #include <vector>
 
@@ -35,8 +37,10 @@ public:
 private:
 	// 02_12 ゲームのフェーズ(型)
 	enum class Phase {
-		kPlay,  // ゲームプレイ
-		kDeath, // デス演出
+		kFadeIn, //フェーズイン
+		kPlay,   // ゲームプレイ
+		kDeath,  // デス演出
+		kFadeOut,// フェードアウト
 	};
 	
 	// ゲームの現在フェーズ(変数)
@@ -94,5 +98,11 @@ private:
 	//02_12
 	bool finished_ = false;
 
-	
+	//02_13
+	Fade* fade_ = nullptr;
+
+	//02_14
+	Model* modelAttack_ = nullptr;
+
+	 
 };
