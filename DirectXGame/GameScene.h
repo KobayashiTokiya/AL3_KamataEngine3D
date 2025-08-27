@@ -7,7 +7,7 @@
 #include "Enemy.h"
 #include "DeathParticles.h"
 #include "Fade.h"
-
+#include "clear.h"
 
 #include <vector>
 

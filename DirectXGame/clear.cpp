@@ -1,30 +1,30 @@
-#include "GameOver.h"
+#include "clear.h"
 #include "Math.h"
 #include <numbers>
 
 using namespace KamataEngine;
 
-GameOver::~GameOver() {
+Clear::~Clear() {
 	delete modelPlayer_;
-	delete modelGameOver_;
+	delete modelClear_;
 	delete modelEnemy1_;
 	delete modelEnemy2_;
 	// 02_13
 	delete fade_;
 }
 
-void GameOver::Initialize() {
-	modelGameOver_ = Model::CreateFromOBJ("gameClear", true);
+void Clear::Initialize() {
+	modelClear_ = Model::CreateFromOBJ("GameClear", true);
 	modelPlayer_ = Model::CreateFromOBJ("player");
 	modelEnemy1_ = Model::CreateFromOBJ("enemy");
 	modelEnemy2_ = Model::CreateFromOBJ("enemy");
 	// カメラ初期化
 	camera_.Initialize();
 
-	const float kGameOver = 2.0f;
+	const float kClear = 2.0f;
 
-	worldTransformGameOver_.Initialize();
-	worldTransformGameOver_.scale_ = {kGameOver, kGameOver, kGameOver};
+	worldTransformClear_.Initialize();
+	worldTransformClear_.scale_ = {kClear, kClear, kClear};
 
 	const float kPlayerScale = 7.0f;
 
@@ -52,7 +52,7 @@ void GameOver::Initialize() {
 	worldTransformEnemy2_.translation_.x = -15.0f;
 	worldTransformEnemy2_.translation_.y = -10.0f;
 	worldTransformEnemy2_.translation_.z = 20.0f;
-	
+
 	// 02_13
 	fade_ = new Fade();
 	fade_->Initialize();
@@ -60,7 +60,7 @@ void GameOver::Initialize() {
 	fade_->Start(Fade::Status::FadeIn, 1.0f);
 }
 
-void GameOver::Update() {
+void Clear::Update() {
 	// 02_13
 	// fade_->Update();
 
@@ -92,16 +92,16 @@ void GameOver::Update() {
 	// }
 
 	counter_ += 1.0f / 60.0f;
-	counter_ = std::fmod(counter_, kTimeGameOverMove);
+	counter_ = std::fmod(counter_, kTimeClearMove);
 
-	float angle = counter_ / kTimeGameOverMove * 2.0f * std::numbers::pi_v<float>;
+	float angle = counter_ / kTimeClearMove * 2.0f * std::numbers::pi_v<float>;
 
-	worldTransformGameOver_.translation_.y = std::sin(angle) + 10.0f;
+	worldTransformClear_.translation_.y = std::sin(angle) + 10.0f;
 
 	camera_.TransferMatrix();
 
 	// アフィン変換～DirectXに転送(タイトル座標)
-	WorldTransformUpdate(worldTransformGameOver_);
+	WorldTransformUpdate(worldTransformClear_);
 	// アフィン変換～DirectXに転送（プレイヤー座標）
 	WorldTransformUpdate(worldTransformPlayer_);
 	// アフィン変換～DirectXに転送（エネミー1座標）
@@ -110,14 +110,14 @@ void GameOver::Update() {
 	WorldTransformUpdate(worldTransformEnemy2_);
 };
 
-void GameOver::Draw() {
+void Clear::Draw() {
 	DirectXCommon* dxCommon_ = DirectXCommon::GetInstance();
 	// コマンドリストの取得
 	ID3D12GraphicsCommandList* commandList = dxCommon_->GetCommandList();
 
 	Model::PreDraw(commandList);
 
-	modelGameOver_->Draw(worldTransformGameOver_, camera_);
+	modelClear_->Draw(worldTransformClear_, camera_);
 	modelPlayer_->Draw(worldTransformPlayer_, camera_);
 	modelEnemy1_->Draw(worldTransformEnemy1_, camera_);
 	modelEnemy2_->Draw(worldTransformEnemy2_, camera_);

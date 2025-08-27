@@ -11,7 +11,7 @@ using namespace KamataEngine;
 TitleScene *titleScene = nullptr; 
 GameScene *gameScene = nullptr;
 GameOver *gameOver = nullptr;
-
+Clear* clear = nullptr;
 // 02_12
 enum class Scene
 {
@@ -19,7 +19,7 @@ enum class Scene
 	kTitle,
 	kGame,
 	kGameOver,
-	kGameCrear,
+	kCrear,
 };
 // 現在シーン（型）
 Scene scene = Scene::kUnknown;
@@ -60,8 +60,23 @@ void ChangeScene() {
 			titleScene = new TitleScene();
 			titleScene->Initialize();
 		}
-	
+		break;
+	case Scene::kCrear:
+		if (clear->IsFinished()) 
+		{
+			// シーン変更
+			scene = Scene::kTitle;
+			// 旧シーンの開放
+			delete clear;
+			clear = nullptr;
+			// 新シーンの生成と初期化
+			titleScene = new TitleScene();
+			titleScene->Initialize();
+		}	
+	break;
 	}
+
+
 }
 
 // 02_12
@@ -76,6 +91,9 @@ void UpdateScene() {
 		break;
 	case Scene::kGameOver:
 		gameOver->Update();
+		break;
+	case Scene::kCrear:
+		clear->Update();
 		break;
 	}
 
@@ -93,8 +111,8 @@ void DrawScene() {
 	case Scene::kGameOver:
 		gameOver->Draw();
 		break;
-	case Scene::kGameCrear:
-		
+	case Scene::kCrear:
+		clear->Draw();
 		break;
 	}
 }
@@ -103,7 +121,7 @@ void DrawScene() {
 int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 	// エンジンの初期化
-	KamataEngine::Initialize(L"LE2C_09_コバヤシ_トキヤ_AL3");
+	KamataEngine::Initialize(L"LE2C_09_コバヤシ_トキヤ_過去の産物壊しちゃえ");
 
 	// DirectXCommonインスタンスの取得
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
@@ -165,6 +183,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	delete titleScene;
 	delete gameScene;
 	delete gameOver;
+	delete clear;
 
 	// エンジンの終了処理
 	KamataEngine::Finalize();
