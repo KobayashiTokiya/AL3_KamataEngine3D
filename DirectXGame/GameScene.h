@@ -1,20 +1,17 @@
 #pragma once
+#include "CameraController.h"
+#include "DeathParticles.h"
+#include "Enemy.h"
+#include "Fade.h"
 #include "KamataEngine.h"
+#include "MapChipField.h"
 #include "Player.h"
 #include "Skydome.h"
-#include "MapChipField.h"
-#include "CameraController.h"
-#include "Enemy.h"
-#include "DeathParticles.h"
-#include "Fade.h"
 #include "clear.h"
 
 #include <vector>
 
-
-
-class GameScene 
-{
+class GameScene {
 public:
 	~GameScene();
 
@@ -30,19 +27,22 @@ public:
 	//
 	void GenerateBlocks();
 
-	//02_12
+	// 02_12
 	void ChangePhase();
 
 	bool IsFinished() const { return finished_; }
+	bool IsGameClear() const { return isGameClear_;}
+	bool IsPlayerDead() const { return isPlayerDead_; }
+
 private:
 	// 02_12 ゲームのフェーズ(型)
 	enum class Phase {
-		kFadeIn, //フェーズイン
-		kPlay,   // ゲームプレイ
-		kDeath,  // デス演出
-		kFadeOut,// フェードアウト
+		kFadeIn,  // フェーズイン
+		kPlay,    // ゲームプレイ
+		kDeath,   // デス演出
+		kFadeOut, // フェードアウト
 	};
-	
+
 	// ゲームの現在フェーズ(変数)
 	Phase phase_;
 
@@ -62,7 +62,7 @@ private:
 	// ブロックモデル
 	KamataEngine::Model* modelBlock_ = nullptr;
 	std::vector<std::vector<KamataEngine::WorldTransform*>> worldTransformBlocks_;
-	
+
 	// デバックカメラ有効
 	bool isDebugCameraActive_ = false;
 	// デバックカメラ
@@ -77,32 +77,34 @@ private:
 	// マップチップフィールド
 	MapChipField* mapChipField_;
 
-	//02_06
-	CameraController* CController_=nullptr;
-	
-	//02_09 エネミークラス
+	// 02_06
+	CameraController* CController_ = nullptr;
+
+	// 02_09 エネミークラス
 	Enemy* enemy_ = nullptr;
-	//エネミーモデル
+	// エネミーモデル
 	Model* enemyModel_ = nullptr;
 
-	//02_10
+	// 02_10
 	std::list<Enemy*> enemies_;
-	//全ての当たり判定を行う
+	// 全ての当たり判定を行う
 	void CheckAllCollisions();
 
-	//02_11
+	// 02_11
 	DeathParticles* deathParticles_ = nullptr;
 
 	Model* deathParticlesModel_ = nullptr;
 
-	//02_12
+	// 02_12
 	bool finished_ = false;
 
-	//02_13
+	bool isGameClear_ = false;
+
+	bool isPlayerDead_ = false;
+
+	// 02_13
 	Fade* fade_ = nullptr;
 
-	//02_14
+	// 02_14
 	Model* modelAttack_ = nullptr;
-
-	 
 };

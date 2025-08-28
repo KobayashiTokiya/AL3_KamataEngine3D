@@ -37,6 +37,10 @@ private:
 	Model* modelEnemy1_ = nullptr;
 	Model* modelEnemy2_ = nullptr;
 
+	// 背景モデル
+	Model* modelBackground_ = nullptr;
+	WorldTransform worldTransformBackground_;
+
 	float counter_ = 0.0f;
 
 	// 終了フラグ

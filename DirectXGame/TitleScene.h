@@ -44,4 +44,8 @@ private:
 
 	//現在のフェーズ
 	Phase phase_ = Phase::kFadeIn;
+
+	// 背景モデル
+	Model* modelBackground_ = nullptr;
+	WorldTransform worldTransformBackground_;
 };

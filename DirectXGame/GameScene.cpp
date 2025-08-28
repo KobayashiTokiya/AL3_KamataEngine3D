@@ -331,6 +331,31 @@ void GameScene::Update() {
 		break;
 	}
 
+	// --- 敵全滅チェック ---
+	bool allDead = true;
+	for (Enemy* enemy : enemies_) {
+		if (!enemy->IsDead()) {
+			allDead = false;
+			break;
+		}
+	}
+
+	// 敵全滅ならクリアフラグ
+	if (allDead && phase_ == Phase::kPlay) {
+		isGameClear_ = true;
+		finished_ = true;
+		phase_ = Phase::kFadeOut;
+		fade_->Start(Fade::Status::FadeOut, 1.0f);
+	}
+
+	// プレイヤー死亡ならゲームオーバーフラグ
+	if (player_->IsDead() && phase_ == Phase::kPlay) {
+		isPlayerDead_ = true;
+		finished_ = true;
+		phase_ = Phase::kFadeOut;
+		fade_->Start(Fade::Status::FadeOut, 1.0f);
+	}
+
 	/*
 	    // 02_12 5枚目 まず追加
 	    // → 02_13 28枚目で中身まるごと変更

@@ -107,7 +107,7 @@ void Enemy::OnCollision(const Player* player)
 	if (player->IsAttack()) {
 		// 敵の振るまいをやられに変更
 		behaviorRequest_ = Behavior::kDefeated;
-
+		isAllEnemyDead = true;
 		// 02_15 20枚目 衝突を無効化
 		isCollisionDisabled_ = true;
 	}

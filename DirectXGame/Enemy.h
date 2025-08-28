@@ -78,4 +78,7 @@ private:
 	float counter_ = 0.0f; // カウンター
 
 	bool isCollisionDisabled_ = false;
+
+	//敵が全員死ぬときのフラグ
+	bool isAllEnemyDead = false;
 };

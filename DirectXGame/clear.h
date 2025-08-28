@@ -1,8 +1,9 @@
 #pragma once
-#pragma once
 #include "Fade.h"
 #include <KamataEngine.h>
 using namespace KamataEngine;
+
+class Enemy;
 
 class Clear {
 public:
@@ -37,6 +38,11 @@ private:
 	Model* modelClear_ = nullptr;
 	Model* modelEnemy1_ = nullptr;
 	Model* modelEnemy2_ = nullptr;
+
+	//背景モデル
+	Model* modelBackground_ = nullptr;
+	WorldTransform worldTransformBackground_;
+
 
 	float counter_ = 0.0f;
 

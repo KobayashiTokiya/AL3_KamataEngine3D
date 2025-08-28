@@ -18,6 +18,14 @@ void Clear::Initialize() {
 	modelPlayer_ = Model::CreateFromOBJ("player");
 	modelEnemy1_ = Model::CreateFromOBJ("enemy");
 	modelEnemy2_ = Model::CreateFromOBJ("enemy");
+
+	//背景
+	modelBackground_ = Model::CreateFromOBJ("ClearBackground", true);
+	worldTransformBackground_.Initialize();
+	worldTransformBackground_.scale_ = {50.0f, 50.0f, 1.0f};      // 背景の大きさ
+	worldTransformBackground_.translation_ = {0.0f, 0.0f, -10.0f}; // カメラより奥
+
+	
 	// カメラ初期化
 	camera_.Initialize();
 
@@ -26,32 +34,32 @@ void Clear::Initialize() {
 	worldTransformClear_.Initialize();
 	worldTransformClear_.scale_ = {kClear, kClear, kClear};
 
-	const float kPlayerScale = 7.0f;
+	const float kPlayerScale = 13.0f;
 
 	worldTransformPlayer_.Initialize();
 	worldTransformPlayer_.scale_ = {kPlayerScale, kPlayerScale, kPlayerScale};
-	worldTransformPlayer_.rotation_.z = 80.0f;
 	worldTransformPlayer_.rotation_.y = 1.0f * std::numbers::pi_v<float>;
 	worldTransformPlayer_.translation_.x = 0.0f;
-	worldTransformPlayer_.translation_.y = -10.0f;
+	worldTransformPlayer_.translation_.y = -5.0f;
 
-	const float kEnemyScale1 = 10.0f;
+	const float kEnemyScale1 = 5.0f;
 
 	worldTransformEnemy1_.Initialize();
 	worldTransformEnemy1_.scale_ = {kEnemyScale1, kEnemyScale1, kEnemyScale1};
-	worldTransformEnemy1_.rotation_.y = -0.8f * std::numbers::pi_v<float>;
-	worldTransformEnemy1_.translation_.x = 15.0f;
-	worldTransformEnemy1_.translation_.y = -10.0f;
-	worldTransformEnemy1_.translation_.z = 20.0f;
+	worldTransformEnemy1_.rotation_.x = 0.5f * std::numbers::pi_v<float>;
+	worldTransformEnemy1_.translation_.x = 0.0f;
+	worldTransformEnemy1_.translation_.y = -11.0f;
+	//worldTransformEnemy1_.translation_.z = 20.0f;
 
-	const float kEnemyScale2 = 10.0f;
+	const float kEnemyScale2 = 5.0f;
 
 	worldTransformEnemy2_.Initialize();
 	worldTransformEnemy2_.scale_ = {kEnemyScale2, kEnemyScale2, kEnemyScale2};
-	worldTransformEnemy2_.rotation_.y = 0.8f * std::numbers::pi_v<float>;
-	worldTransformEnemy2_.translation_.x = -15.0f;
-	worldTransformEnemy2_.translation_.y = -10.0f;
-	worldTransformEnemy2_.translation_.z = 20.0f;
+	worldTransformEnemy2_.rotation_.x = 0.2f * std::numbers::pi_v<float>;
+	worldTransformEnemy2_.rotation_.y = 0.5f * std::numbers::pi_v<float>;
+	worldTransformEnemy2_.translation_.x = -7.0f;
+	worldTransformEnemy2_.translation_.y = -11.0f;
+	//worldTransformEnemy2_.translation_.z = 20.0f;
 
 	// 02_13
 	fade_ = new Fade();
@@ -121,6 +129,10 @@ void Clear::Draw() {
 	modelPlayer_->Draw(worldTransformPlayer_, camera_);
 	modelEnemy1_->Draw(worldTransformEnemy1_, camera_);
 	modelEnemy2_->Draw(worldTransformEnemy2_, camera_);
+
+	//背景
+	modelBackground_->Draw(worldTransformBackground_, camera_);
+
 	// 02_13
 	fade_->Draw();
 	Model::PostDraw();

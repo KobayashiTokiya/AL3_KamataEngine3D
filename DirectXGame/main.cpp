@@ -1,20 +1,19 @@
-#include "KamataEngine.h"
-#include "GameScene.h"
-#include "TitleScene.h" // 02_12 21枚目
 #include "GameOver.h"
+#include "GameScene.h"
+#include "KamataEngine.h"
+#include "TitleScene.h" // 02_12 21枚目
 
 #include <Windows.h>
 
 using namespace KamataEngine;
 
 // 02_12
-TitleScene *titleScene = nullptr; 
-GameScene *gameScene = nullptr;
-GameOver *gameOver = nullptr;
+TitleScene* titleScene = nullptr;
+GameScene* gameScene = nullptr;
+GameOver* gameOver = nullptr;
 Clear* clear = nullptr;
 // 02_12
-enum class Scene
-{
+enum class Scene {
 	kUnknown = 0,
 	kTitle,
 	kGame,
@@ -37,33 +36,36 @@ void ChangeScene() {
 			gameScene = new GameScene;
 			gameScene->Initialize();
 		}
-	break;
+		break;
 	case Scene::kGame:
-		if (gameScene->IsFinished()) {
-			// シーン変更
+		if (gameScene->IsGameClear()) {
+			scene = Scene::kCrear;
+			delete gameScene;
+			gameScene = nullptr;
+			clear = new Clear;
+			clear->Initialize();
+		} else if (gameScene->IsFinished()) {
 			scene = Scene::kGameOver;
 			delete gameScene;
 			gameScene = nullptr;
 			gameOver = new GameOver;
 			gameOver->Initialize();
 		}
-	break;
+		break;
 	case Scene::kGameOver:
-		if (gameOver->IsFinished())
-		{
-			//シーン変更
+		if (gameOver->IsFinished()) {
+			// シーン変更
 			scene = Scene::kTitle;
-			//旧シーンの開放
+			// 旧シーンの開放
 			delete gameOver;
 			gameOver = nullptr;
-			//新シーンの生成と初期化
+			// 新シーンの生成と初期化
 			titleScene = new TitleScene();
 			titleScene->Initialize();
 		}
 		break;
 	case Scene::kCrear:
-		if (clear->IsFinished()) 
-		{
+		if (clear->IsFinished()) {
 			// シーン変更
 			scene = Scene::kTitle;
 			// 旧シーンの開放
@@ -72,11 +74,9 @@ void ChangeScene() {
 			// 新シーンの生成と初期化
 			titleScene = new TitleScene();
 			titleScene->Initialize();
-		}	
-	break;
+		}
+		break;
 	}
-
-
 }
 
 // 02_12
@@ -96,7 +96,6 @@ void UpdateScene() {
 		clear->Update();
 		break;
 	}
-
 }
 
 // 02_12
@@ -126,11 +125,11 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	// DirectXCommonインスタンスの取得
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 
-    // ImGuiManagerインスタンスの取得
+	// ImGuiManagerインスタンスの取得
 	ImGuiManager* imguiManager = ImGuiManager::GetInstance();
 
 	// 02_12
-	//TitleScene *titleScene = nullptr; // 02_12 24枚目でグローバルに引っ越し
+	// TitleScene *titleScene = nullptr; // 02_12 24枚目でグローバルに引っ越し
 	scene = Scene::kTitle;
 	titleScene = new TitleScene;
 	titleScene->Initialize();
@@ -142,16 +141,16 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 			break;
 		}
 
-        // ImGui受付開始
+		// ImGui受付開始
 		imguiManager->Begin();
 
 		// 02_12 21枚目で変更
 		// 	titleScene->Update(); //02_12 33枚目で削除
 
 		// シーン切り替え
-		ChangeScene();//02_12 33枚目で追加
+		ChangeScene(); // 02_12 33枚目で追加
 		// シーン更新
-		UpdateScene();//02_12 33枚目で追加
+		UpdateScene(); // 02_12 33枚目で追加
 
 		// ImGui受付終了
 		imguiManager->End();
@@ -171,7 +170,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 		// プリミティブ描画のリセット
 		PrimitiveDrawer::GetInstance()->Reset();
 
-        // ImGui描画
+		// ImGui描画
 		imguiManager->Draw();
 		imguiManager->Draw();
 
