@@ -64,6 +64,11 @@ void GameScene::Initialize() {
 	mapChipField_->LoadMapChipCsv("Resources/blocks.csv");
 	GenerateBlocks();
 
+	kamaModel_ = Model::CreateFromOBJ("kama", "kama.png");
+	worldTransformKama_.Initialize();
+	worldTransformKama_.translation_ = {1000.0f, 0.0f, 500.0f}; // 位置
+	worldTransformKama_.scale_ = {5.0f, 5.0f, 5.0f};         // サイズ調整
+
 	// 02_07 マップチップクラスを作ってからプレイヤークラスを作る
 	// という順番に入れ替える
 	// 02_01から追加 プレイヤー生成
@@ -189,7 +194,7 @@ void GameScene::Update() {
 		}
 		return false;
 	});
-
+	worldTransformKama_.translation_ = {1000.0f, 0.0f, 500.0f}; // 位置
 	ChangePhase();
 
 	switch (phase_) {
@@ -430,6 +435,8 @@ void GameScene::Update() {
 
 void GameScene::Draw() {
 
+
+
 	// DirectXCommonインスタンスの取得
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 
@@ -442,7 +449,10 @@ void GameScene::Draw() {
 
 	// 天球描画
 	skydome_->Draw();
-
+	
+	//釜
+	kamaModel_->Draw(worldTransformKama_, camera_);
+	
 	// ブロックの描画
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform*& worldTransformBlock : worldTransformBlockLine) {

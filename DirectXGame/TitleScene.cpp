@@ -18,6 +18,12 @@ void TitleScene::Initialize()
 	modelTitle_ = Model::CreateFromOBJ("titleFont", true);
 	modelPlayer_ = Model::CreateFromOBJ("player");
 
+	// 背景
+	modelBackground_ = Model::CreateFromOBJ("titleBackground", true);
+	worldTransformBackground_.Initialize();
+	worldTransformBackground_.scale_ = {50.0f, 50.0f, 1.0f};       // 背景の大きさ
+	worldTransformBackground_.translation_ = {0.0f, 0.0f, -10.0f}; // カメラより奥
+
 	// カメラ初期化
 	camera_.Initialize();
 
@@ -101,6 +107,10 @@ void TitleScene::Draw()
 
 	modelTitle_->Draw(worldTransformTitle_, camera_);
 	modelPlayer_->Draw(worldTransformPlayer_, camera_);
+
+	// 背景
+	modelBackground_->Draw(worldTransformBackground_, camera_);
+
 	//02_13
 	fade_->Draw();
 	Model::PostDraw();

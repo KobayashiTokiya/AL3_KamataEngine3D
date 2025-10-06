@@ -181,4 +181,7 @@ private:
 
 	// 02_15
 	bool isCollisionDisabled_ = false; // 衝突無効化
+
+	//はしご
+
 };

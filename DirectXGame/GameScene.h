@@ -107,4 +107,7 @@ private:
 
 	// 02_14
 	Model* modelAttack_ = nullptr;
+
+	Model* kamaModel_ = nullptr;
+	WorldTransform worldTransformKama_;
 };
