@@ -21,7 +21,9 @@ void CameraController::Update()
 	destination_ = targetWorldTransform.translation_ + targetOffset_+targetVelocty*kVelocityBias;
 	
 	//座標補間によりゆったり追従
-	camera_->translation_ = Lerp(camera_->translation_, destination_, kInterpolationRate);
+	//camera_->translation_ = Lerp(camera_->translation_, destination_, kInterpolationRate);
+
+	camera_->translation_ = targetWorldTransform.translation_ + targetOffset_;
 
 	//追従対象が画面外に出ないように補正
 	camera_->translation_.x = max(camera_->translation_.x, destination_.x + targetMargin.left);

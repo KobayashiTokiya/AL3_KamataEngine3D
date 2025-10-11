@@ -110,4 +110,7 @@ private:
 
 	Model* kamaModel_ = nullptr;
 	WorldTransform worldTransformKama_;
+
+	Model* modelLadder = nullptr;
+	std::vector<std::vector<WorldTransform*>> worldTransformLadders_;
 };
