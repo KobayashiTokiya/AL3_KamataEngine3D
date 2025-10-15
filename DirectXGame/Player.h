@@ -187,7 +187,20 @@ private:
 
 	// 02_15
 	bool isCollisionDisabled_ = false; // 衝突無効化
-
+	
+	//梯子関連
 	//はしごを登る動作
 
+	// 梯子とプレイヤーとの当たり判定
+	void CheckLadderCollision(CollisionMapInfo& info);
+	// 当たり判定の上下左右
+	void CheckLadderCollisionUp(CollisionMapInfo& info);
+	void CheckLadderCollisionDown(CollisionMapInfo& info);
+	void CheckLadderCollisionRight(CollisionMapInfo& info);
+	void CheckLadderCollisionLeft(CollisionMapInfo& info);
+
+	void UpdateOnLadder(const CollisionMapInfo& info);
+
+	//梯子に乗っているか
+	bool onLadder_ = false;
 };
