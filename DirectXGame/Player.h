@@ -37,6 +37,13 @@ public:
 		kRecovery,     // 余韻動作
 	};
 
+	enum class ClimbPhase
+	{
+		kUnknown = -1, // 無効な状態
+		kPreparatoryAction,
+		kClimb,
+	};
+
 	/// 初期化
 	void Initialize(Model* model, Model* modelAttack, Camera* camera, const Vector3& position);
 
@@ -153,6 +160,12 @@ private:
 	// 02_08 スライド27枚目 壁接触している場合の処理
 	void UpdateOnWall(const CollisionMapInfo& info);
 
+	//梯子関連
+	//はしごを登る動作
+	//void UpdateOnLadder(const CollisionMapInfo& info);
+	float ladderSpeed = 0.1f;
+	//梯子に乗っているか
+	//bool onLadder_ = false;
 	// 02_08スライド16枚目 着地時の速度減衰率
 	static inline const float kAttenuationLanding = 0.0f;
 	// 02_08スライド21枚目 微小な数値
@@ -188,19 +201,5 @@ private:
 	// 02_15
 	bool isCollisionDisabled_ = false; // 衝突無効化
 	
-	//梯子関連
-	//はしごを登る動作
-
-	// 梯子とプレイヤーとの当たり判定
-	void CheckLadderCollision(CollisionMapInfo& info);
-	// 当たり判定の上下左右
-	void CheckLadderCollisionUp(CollisionMapInfo& info);
-	void CheckLadderCollisionDown(CollisionMapInfo& info);
-	void CheckLadderCollisionRight(CollisionMapInfo& info);
-	void CheckLadderCollisionLeft(CollisionMapInfo& info);
-
-	void UpdateOnLadder(const CollisionMapInfo& info);
-
-	//梯子に乗っているか
-	bool onLadder_ = false;
+	
 };

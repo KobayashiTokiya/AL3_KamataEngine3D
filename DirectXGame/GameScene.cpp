@@ -283,13 +283,13 @@ void GameScene::Update() {
 
 		// 梯子の更新
 		for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformLadders_) {
-			for (WorldTransform*& worldTransformBlock : worldTransformBlockLine) {
+			for (WorldTransform*& worldTransformLadder : worldTransformBlockLine) {
 
-				if (!worldTransformBlock)
+				if (!worldTransformLadder)
 					continue;
 
 				// アフィン変換～DirectXに転送
-				WorldTransformUpdate(*worldTransformBlock);
+				WorldTransformUpdate(*worldTransformLadder);
 			}
 		}
 
