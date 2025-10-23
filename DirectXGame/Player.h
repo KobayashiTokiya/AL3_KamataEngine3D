@@ -165,7 +165,7 @@ private:
 	//void UpdateOnLadder(const CollisionMapInfo& info);
 	float ladderSpeed = 0.1f;
 	//梯子に乗っているか
-	//bool onLadder_ = false;
+	bool onLadder_ = false;
 	// 02_08スライド16枚目 着地時の速度減衰率
 	static inline const float kAttenuationLanding = 0.0f;
 	// 02_08スライド21枚目 微小な数値

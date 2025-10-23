@@ -341,7 +341,14 @@ void Player::InputMove() {
 			// ジャンプ初速
 			velocity_ += Vector3(0, kJumpAcceleration / 60.0f, 0);
 		}
-	} else {
+	}
+	else if (!onLadder_)
+	{
+		// 落下速度（はしごにいないときだけ重力をかける）
+		velocity_ += Vector3(0, -kGravityAcceleration / 60.0f, 0);
+		velocity_.y = std::max(velocity_.y, -kLimitFallSpeed);
+	}
+	else {
 		// 落下速度
 		velocity_ += Vector3(0, -kGravityAcceleration / 60.0f, 0);
 		velocity_.y = std::max(velocity_.y, -kLimitFallSpeed);
@@ -577,6 +584,8 @@ void Player::CheckMapCollisionRight(CollisionMapInfo& info) {
 	MapChipType mapChipType;
 	// 右側の当たり判定
 	bool hit = false;
+	//梯子の判定
+	bool ladder = false;
 
 	// 右上点の判定
 	MapChipField::IndexSet indexSet;
@@ -587,12 +596,9 @@ void Player::CheckMapCollisionRight(CollisionMapInfo& info) {
 		hit = true;
 	}
 	if (mapChipType == MapChipType::kLadder) {
-		hit = false;
-		if (Input::GetInstance()->PushKey(DIK_W)) {
-			worldTransform_.translation_.y += ladderSpeed;
-		} else if (Input::GetInstance()->PushKey(DIK_S)) {
-			worldTransform_.translation_.y -= ladderSpeed;
-		}
+		ladder = true;
+	} else {
+		onLadder_ = false;
 	}
 
 	// 右下点の判定
@@ -603,12 +609,11 @@ void Player::CheckMapCollisionRight(CollisionMapInfo& info) {
 		hit = true;
 	}
 	if (mapChipType == MapChipType::kLadder) {
-		hit = false;
-		if (Input::GetInstance()->PushKey(DIK_W)) {
-			worldTransform_.translation_.y += ladderSpeed;
-		} else if (Input::GetInstance()->PushKey(DIK_S)) {
-			worldTransform_.translation_.y -= ladderSpeed;
-		}
+		ladder = true;
+	}
+	else
+	{
+		onLadder_ = false;
 	}
 	// ブロックにヒット？
 	if (hit) {
@@ -622,6 +627,22 @@ void Player::CheckMapCollisionRight(CollisionMapInfo& info) {
 			info.move.x = std::max(0.0f, rect.left - worldTransform_.translation_.x - (kWidth / 2.0f + kBlank));
 			info.hitWall = true;
 		}
+	}
+
+	//梯子中の処理
+	if (ladder) 
+	{
+		onLadder_ = true; // ← フラグON
+		//kGravityAcceleration = 0.0f;  // ← 重力無効化
+
+		if (Input::GetInstance()->PushKey(DIK_W)) {
+			worldTransform_.translation_.y += ladderSpeed;
+		} else if (Input::GetInstance()->PushKey(DIK_S)) {
+			worldTransform_.translation_.y -= ladderSpeed;
+		}
+	} else {
+		onLadder_ = false; // ← はしごを離れた
+		//kGravityAcceleration = 0.98f; // ← 重力を元に戻す
 	}
 }
 
