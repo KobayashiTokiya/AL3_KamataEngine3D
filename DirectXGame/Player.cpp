@@ -386,6 +386,8 @@ void Player::CheckMapCollisionUp(CollisionMapInfo& info) {
 	// 真上の当たり判定を行う
 	bool hit = false;
 
+	bool ladder = false;
+
 	// 左上点の判定
 	MapChipField::IndexSet indexSet;
 	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kLeftTop]);
@@ -397,16 +399,7 @@ void Player::CheckMapCollisionUp(CollisionMapInfo& info) {
 
 	if (mapChipType == MapChipType::kLadder)
 	{
-		
-		hit = false;
-		if (Input::GetInstance()->PushKey(DIK_W))
-		{
-			worldTransform_.translation_.y += ladderSpeed;
-		} 
-		else if (Input::GetInstance()->PushKey(DIK_S)) 
-		{
-			worldTransform_.translation_.y -= ladderSpeed;
-		}
+		ladder= true;
 	}
 
 	// 右上点の判定
@@ -417,12 +410,9 @@ void Player::CheckMapCollisionUp(CollisionMapInfo& info) {
 	{
 		hit = true;
 	}
-	hit = false;
-	if (Input::GetInstance()->PushKey(DIK_W)) {
-		worldTransform_.translation_.y += ladderSpeed;
-	} else if (Input::GetInstance()->PushKey(DIK_S)) {
-		worldTransform_.translation_.y -= ladderSpeed;
-	}
+	if (mapChipType == MapChipType::kLadder) {
+		ladder = true;
+	} 
 
 	// ブロックにヒット？ 02_07 スライド34枚目
 	if (hit) {
@@ -437,6 +427,18 @@ void Player::CheckMapCollisionUp(CollisionMapInfo& info) {
 			info.ceiling = true;
 		}
 	}
+
+	// 梯子中の処理
+	if (ladder) {
+		onLadder_ = true;   // ← フラグON
+		velocity_.y = 0.0f; // ← 重力無効化
+
+		if (Input::GetInstance()->PushKey(DIK_W)) {
+			worldTransform_.translation_.y += ladderSpeed;
+		} else if (Input::GetInstance()->PushKey(DIK_S)) {
+			worldTransform_.translation_.y -= ladderSpeed;
+		}
+	} 
 }
 
 void Player::CheckMapCollisionDown(CollisionMapInfo& info) {
@@ -458,6 +460,8 @@ void Player::CheckMapCollisionDown(CollisionMapInfo& info) {
 
 	// フラグ初期化
 	bool hit = false;
+	
+	bool ladder = false;
 
 	// 左下の判定
 	MapChipField::IndexSet indexSet;
@@ -468,13 +472,8 @@ void Player::CheckMapCollisionDown(CollisionMapInfo& info) {
 		hit = true;
 	}
 	if (mapChipType == MapChipType::kLadder) {
-		hit = false;
-		if (Input::GetInstance()->PushKey(DIK_W)) {
-			worldTransform_.translation_.y += ladderSpeed;
-		} else if (Input::GetInstance()->PushKey(DIK_S)) {
-			worldTransform_.translation_.y -= ladderSpeed;
-		}
-	}
+		ladder = true;
+	} 
 
 	// 右下点の判定
 	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kLeftBottom]);
@@ -484,13 +483,8 @@ void Player::CheckMapCollisionDown(CollisionMapInfo& info) {
 		hit = true;
 	}
 	if (mapChipType == MapChipType::kLadder) {
-		hit = false;
-		if (Input::GetInstance()->PushKey(DIK_W)) {
-			worldTransform_.translation_.y += ladderSpeed;
-		} else if (Input::GetInstance()->PushKey(DIK_S)) {
-			worldTransform_.translation_.y -= ladderSpeed;
-		}
-	}
+		ladder = true;
+	} 
 
 	// 02_08スライド11枚目 ブロックにヒット？
 	if (hit) {
@@ -502,6 +496,18 @@ void Player::CheckMapCollisionDown(CollisionMapInfo& info) {
 		// 地面に当たったことを記録する
 		info.landing = true;
 	}
+	
+	//梯子中の処理
+	if (ladder) {
+		onLadder_ = true;   // ← フラグON
+		velocity_.y = 0.0f; // ← 重力無効化
+
+		if (Input::GetInstance()->PushKey(DIK_W)) {
+			worldTransform_.translation_.y += ladderSpeed;
+		} else if (Input::GetInstance()->PushKey(DIK_S)) {
+			worldTransform_.translation_.y -= ladderSpeed;
+		}
+	} 
 }
 
 // 02_08スライド14枚目 設置状態の切り替え処理
@@ -597,9 +603,7 @@ void Player::CheckMapCollisionRight(CollisionMapInfo& info) {
 	}
 	if (mapChipType == MapChipType::kLadder) {
 		ladder = true;
-	} else {
-		onLadder_ = false;
-	}
+	} 
 
 	// 右下点の判定
 	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kRightBottom]);
@@ -611,10 +615,7 @@ void Player::CheckMapCollisionRight(CollisionMapInfo& info) {
 	if (mapChipType == MapChipType::kLadder) {
 		ladder = true;
 	}
-	else
-	{
-		onLadder_ = false;
-	}
+
 	// ブロックにヒット？
 	if (hit) {
 		// 現在座標が壁の外か判定
@@ -633,16 +634,13 @@ void Player::CheckMapCollisionRight(CollisionMapInfo& info) {
 	if (ladder) 
 	{
 		onLadder_ = true; // ← フラグON
-		//kGravityAcceleration = 0.0f;  // ← 重力無効化
+		velocity_.y= 0.0f;  // ← 重力無効化
 
 		if (Input::GetInstance()->PushKey(DIK_W)) {
 			worldTransform_.translation_.y += ladderSpeed;
 		} else if (Input::GetInstance()->PushKey(DIK_S)) {
 			worldTransform_.translation_.y -= ladderSpeed;
 		}
-	} else {
-		onLadder_ = false; // ← はしごを離れた
-		//kGravityAcceleration = 0.98f; // ← 重力を元に戻す
 	}
 }
 
@@ -662,6 +660,7 @@ void Player::CheckMapCollisionLeft(CollisionMapInfo& info) {
 	MapChipType mapChipType;
 	// 右側の当たり判定
 	bool hit = false;
+	bool ladder = false;
 
 	// 左上点の判定
 	MapChipField::IndexSet indexSet;
@@ -672,13 +671,13 @@ void Player::CheckMapCollisionLeft(CollisionMapInfo& info) {
 		hit = true;
 	}
 	if (mapChipType == MapChipType::kLadder) {
-		hit = false;
-		if (Input::GetInstance()->PushKey(DIK_W)) {
-			worldTransform_.translation_.y += ladderSpeed;
-		} else if (Input::GetInstance()->PushKey(DIK_S)) {
-			worldTransform_.translation_.y -= ladderSpeed;
-		}
-	}
+		ladder = true;
+		//if (Input::GetInstance()->PushKey(DIK_W)) {
+		//	worldTransform_.translation_.y += ladderSpeed;
+		//} else if (Input::GetInstance()->PushKey(DIK_S)) {
+		//	worldTransform_.translation_.y -= ladderSpeed;
+		//}
+	} 
 
 	// 左下点の判定
 	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kLeftBottom]);
@@ -688,12 +687,12 @@ void Player::CheckMapCollisionLeft(CollisionMapInfo& info) {
 		hit = true;
 	}
 	if (mapChipType == MapChipType::kLadder) {
-		hit = false;
-		if (Input::GetInstance()->PushKey(DIK_W)) {
-			worldTransform_.translation_.y += ladderSpeed;
-		} else if (Input::GetInstance()->PushKey(DIK_S)) {
-			worldTransform_.translation_.y -= ladderSpeed;
-		}
+		ladder = true;
+		//if (Input::GetInstance()->PushKey(DIK_W)) {
+		//	worldTransform_.translation_.y += ladderSpeed;
+		//} else if (Input::GetInstance()->PushKey(DIK_S)) {
+		//	worldTransform_.translation_.y -= ladderSpeed;
+		//}
 	}
 
 	// ブロックにヒット？
@@ -708,6 +707,17 @@ void Player::CheckMapCollisionLeft(CollisionMapInfo& info) {
 			MapChipField::Rect rect = mapChipField_->GetRectByIndex(indexSet.xIndex, indexSet.yIndex);
 			info.move.x = std::max(0.0f, rect.right - worldTransform_.translation_.x - (kWidth / 2.0f + kBlank));
 			info.hitWall = true;
+		}
+	}
+
+	if (ladder) {
+		onLadder_ = true;   // ← フラグON
+		velocity_.y = 0.0f; // ← 重力無効化
+
+		if (Input::GetInstance()->PushKey(DIK_W)) {
+			worldTransform_.translation_.y += ladderSpeed;
+		} else if (Input::GetInstance()->PushKey(DIK_S)) {
+			worldTransform_.translation_.y -= ladderSpeed;
 		}
 	}
 }
