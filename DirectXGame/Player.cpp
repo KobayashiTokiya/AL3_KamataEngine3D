@@ -388,6 +388,7 @@ void Player::CheckMapCollisionUp(CollisionMapInfo& info) {
 
 	bool ladder = false;
 
+
 	// 左上点の判定
 	MapChipField::IndexSet indexSet;
 	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kLeftTop]);
