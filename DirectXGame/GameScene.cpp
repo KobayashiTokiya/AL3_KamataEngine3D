@@ -35,6 +35,7 @@ GameScene::~GameScene() {
 
 void GameScene::Initialize() {
 
+
 	// ファイル名を指定してテクスチャを読み込む
 	textureHandle_ = TextureManager::Load("sample.png");
 	// スプライト生成
