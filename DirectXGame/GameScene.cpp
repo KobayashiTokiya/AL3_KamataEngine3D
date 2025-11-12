@@ -9,6 +9,9 @@ GameScene::~GameScene() {
 	delete model_;
 
 	delete modelBlock_;
+	delete modelLadder_;
+	delete modelIce_;
+
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
 			delete worldTransformBlock;
@@ -54,6 +57,8 @@ void GameScene::Initialize() {
 	//梯子モデル
 	modelLadder_ = Model::CreateFromOBJ("enemy");
 	
+	//氷ブロックモデル
+	modelIce_ = Model::CreateFromOBJ("enemy");
 
 	// デバッグカメラの生成
 	debugCamera_ = new DebugCamera(WinApp::kWindowWidth, WinApp::kWindowHeight);
@@ -69,6 +74,7 @@ void GameScene::Initialize() {
 	mapChipField_->LoadMapChipCsv("Resources/blocks.csv");
 	GenerateBlocks();
 	LadderBlocks();
+	IceBlocks();
 
 	kamaModel_ = Model::CreateFromOBJ("kama", "kama.png");
 	worldTransformKama_.Initialize();
@@ -215,6 +221,32 @@ void GameScene::LadderBlocks() {
 	}
 }
 
+void GameScene::IceBlocks() {
+
+	uint32_t numBlockVirtical = mapChipField_->GetNumBlockVirtical();
+	uint32_t numBlockHorizontal = mapChipField_->GetNumBlockHorizontal();
+
+	worldTransformIce_.resize(numBlockVirtical);
+	for (uint32_t i = 0; i < numBlockVirtical; ++i) {
+		worldTransformIce_[i].resize(numBlockHorizontal);
+	}
+
+	// ブロックの生成
+	for (uint32_t i = 0; i < numBlockVirtical; ++i) {
+
+		for (uint32_t j = 0; j < numBlockHorizontal; ++j) {
+
+			// ブロックを変える
+			if (mapChipField_->GetMapChipTypeByIndex(j, i) == MapChipType::kIceBlock) {
+				WorldTransform* worldTransform = new WorldTransform();
+				worldTransform->Initialize();
+				worldTransformIce_[i][j] = worldTransform;
+				worldTransformIce_[i][j]->translation_ = mapChipField_->GetMapChipPositionByIndex(j, i);
+			}
+		}
+	}
+}
+
 
 // ゲームシーン更新
 void GameScene::Update() {
@@ -294,6 +326,18 @@ void GameScene::Update() {
 			}
 		}
 
+		// の更新
+		for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformIce_) {
+			for (WorldTransform*& worldTransformIce : worldTransformBlockLine) {
+
+				if (!worldTransformIce)
+					continue;
+
+				// アフィン変換～DirectXに転送
+				WorldTransformUpdate(*worldTransformIce);
+			}
+		}
+
 		break;
 	case Phase::kPlay:
 		skydome_->Update();
@@ -344,6 +388,17 @@ void GameScene::Update() {
 		}
 		//梯子の更新
 		for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformLadders_) {
+			for (WorldTransform*& worldTransformBlock : worldTransformBlockLine) {
+
+				if (!worldTransformBlock)
+					continue;
+
+				// アフィン変換～DirectXに転送
+				WorldTransformUpdate(*worldTransformBlock);
+			}
+		}
+		// 氷の更新
+		for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformIce_) {
 			for (WorldTransform*& worldTransformBlock : worldTransformBlockLine) {
 
 				if (!worldTransformBlock)
@@ -526,6 +581,15 @@ void GameScene::Draw() {
 				continue;
 
 			modelLadder_->Draw(*worldTransformBlock, camera_);
+		}
+	}
+	//氷ブロック
+	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformIce_) {
+		for (WorldTransform*& worldTransformBlock : worldTransformBlockLine) {
+			if (!worldTransformBlock)
+				continue;
+
+			modelIce_->Draw(*worldTransformBlock, camera_);
 		}
 	}
 

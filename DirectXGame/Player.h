@@ -107,9 +107,9 @@ private:
 	// 02_05 移動量
 	Vector3 velocity_ = {};
 	// 02_05  フレームごとの加速度
-	static inline const float kAcceleration = 0.1f;
+	static inline const float kAcceleration = 0.3f;
 	// 02_05 非入力時の摩擦係数
-	static inline const float kAttenuation = 0.01f;
+	static inline const float kAttenuation = 0.05f;
 	// 02_05 最高速度
 	static inline const float kLimitRunSpeed = 0.3f;
 	// 02_05 顔の向き
@@ -166,6 +166,11 @@ private:
 	float ladderSpeed = 0.1f;
 	//梯子に乗っているか
 	bool onLadder_ = false;
+
+	//氷ブロック関連
+	bool onIce_ = false;
+
+
 	// 02_08スライド16枚目 着地時の速度減衰率
 	static inline const float kAttenuationLanding = 0.0f;
 	// 02_08スライド21枚目 微小な数値

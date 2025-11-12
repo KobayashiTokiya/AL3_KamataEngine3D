@@ -30,6 +30,9 @@ public:
 	//梯子ブロック
 	void LadderBlocks();
 
+	//氷ブロック
+	void IceBlocks();
+
 	// 02_12
 	void ChangePhase();
 
@@ -70,6 +73,10 @@ private:
 	//モデル
 	Model* modelLadder_ = nullptr;
 	std::vector<std::vector<WorldTransform*>> worldTransformLadders_;
+
+	//氷ブロック(滑る床)
+	Model* modelIce_ = nullptr;
+	std::vector<std::vector<WorldTransform*>> worldTransformIce_;
 
 
 
