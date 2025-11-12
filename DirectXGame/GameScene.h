@@ -24,8 +24,11 @@ public:
 	// 描画
 	void Draw();
 
-	//
+	//普通のブロック
 	void GenerateBlocks();
+
+	//梯子ブロック
+	void LadderBlocks();
 
 	// 02_12
 	void ChangePhase();
@@ -62,6 +65,13 @@ private:
 	// ブロックモデル
 	KamataEngine::Model* modelBlock_ = nullptr;
 	std::vector<std::vector<KamataEngine::WorldTransform*>> worldTransformBlocks_;
+
+	//梯子関連
+	//モデル
+	Model* modelLadder_ = nullptr;
+	std::vector<std::vector<WorldTransform*>> worldTransformLadders_;
+
+
 
 	// デバックカメラ有効
 	bool isDebugCameraActive_ = false;
@@ -110,4 +120,6 @@ private:
 
 	Model* kamaModel_ = nullptr;
 	WorldTransform worldTransformKama_;
+
+	
 };

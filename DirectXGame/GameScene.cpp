@@ -35,6 +35,7 @@ GameScene::~GameScene() {
 
 void GameScene::Initialize() {
 
+
 	// ファイル名を指定してテクスチャを読み込む
 	textureHandle_ = TextureManager::Load("sample.png");
 	// スプライト生成
@@ -50,6 +51,10 @@ void GameScene::Initialize() {
 	// ブロックモデル
 	modelBlock_ = Model::CreateFromOBJ("block");
 
+	//梯子モデル
+	modelLadder_ = Model::CreateFromOBJ("enemy");
+	
+
 	// デバッグカメラの生成
 	debugCamera_ = new DebugCamera(WinApp::kWindowWidth, WinApp::kWindowHeight);
 
@@ -63,6 +68,7 @@ void GameScene::Initialize() {
 	mapChipField_ = new MapChipField;
 	mapChipField_->LoadMapChipCsv("Resources/blocks.csv");
 	GenerateBlocks();
+	LadderBlocks();
 
 	kamaModel_ = Model::CreateFromOBJ("kama", "kama.png");
 	worldTransformKama_.Initialize();
@@ -183,6 +189,33 @@ void GameScene::GenerateBlocks() {
 	}
 }
 
+void GameScene::LadderBlocks() {
+
+	uint32_t numBlockVirtical = mapChipField_->GetNumBlockVirtical();
+	uint32_t numBlockHorizontal = mapChipField_->GetNumBlockHorizontal();
+
+	worldTransformLadders_.resize(numBlockVirtical);
+	for (uint32_t i = 0; i < numBlockVirtical; ++i) {
+		worldTransformLadders_[i].resize(numBlockHorizontal);
+	}
+
+	// ブロックの生成
+	for (uint32_t i = 0; i < numBlockVirtical; ++i) {
+
+		for (uint32_t j = 0; j < numBlockHorizontal; ++j) {
+
+			//ブロックを変える
+			if (mapChipField_->GetMapChipTypeByIndex(j, i) == MapChipType::kLadder) {
+				WorldTransform* worldTransform = new WorldTransform();
+				worldTransform->Initialize();
+				worldTransformLadders_[i][j] = worldTransform;
+				worldTransformLadders_[i][j]->translation_ = mapChipField_->GetMapChipPositionByIndex(j, i);
+			}
+		}
+	}
+}
+
+
 // ゲームシーン更新
 void GameScene::Update() {
 
@@ -219,15 +252,14 @@ void GameScene::Update() {
 
 		// UpdateCamera();
 #ifdef _DEBUG
-		if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
-			// フラグをトグル
-			isDebugCameraActive_ = !isDebugCameraActive_;
-		}
+		//if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
+		//	// フラグをトグル
+		//	isDebugCameraActive_ = !isDebugCameraActive_;
+		//}
 #endif
 
 		// カメラの処理
 		if (isDebugCameraActive_) {
-			debugCamera_->Update();
 			camera_.matView = debugCamera_->GetCamera().matView;
 			camera_.matProjection = debugCamera_->GetCamera().matProjection;
 			// ビュープロジェクション行列の転送
@@ -249,6 +281,19 @@ void GameScene::Update() {
 				WorldTransformUpdate(*worldTransformBlock);
 			}
 		}
+
+		// 梯子の更新
+		for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformLadders_) {
+			for (WorldTransform*& worldTransformLadder : worldTransformBlockLine) {
+
+				if (!worldTransformLadder)
+					continue;
+
+				// アフィン変換～DirectXに転送
+				WorldTransformUpdate(*worldTransformLadder);
+			}
+		}
+
 		break;
 	case Phase::kPlay:
 		skydome_->Update();
@@ -261,7 +306,8 @@ void GameScene::Update() {
 
 		for (Enemy* enemy : enemies_) {
 			enemy->Update();
-		}
+		}		debugCamera_->Update();
+	
 
 		//		UpdateCamera();
 		/*
@@ -287,6 +333,17 @@ void GameScene::Update() {
 		//		UpdateBlocks();
 		// ブロックの更新
 		for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
+			for (WorldTransform*& worldTransformBlock : worldTransformBlockLine) {
+
+				if (!worldTransformBlock)
+					continue;
+
+				// アフィン変換～DirectXに転送
+				WorldTransformUpdate(*worldTransformBlock);
+			}
+		}
+		//梯子の更新
+		for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformLadders_) {
 			for (WorldTransform*& worldTransformBlock : worldTransformBlockLine) {
 
 				if (!worldTransformBlock)
@@ -460,6 +517,15 @@ void GameScene::Draw() {
 				continue;
 
 			modelBlock_->Draw(*worldTransformBlock, camera_);
+		}
+	}
+	// 梯子描画
+	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformLadders_) {
+		for (WorldTransform*& worldTransformBlock : worldTransformBlockLine) {
+			if (!worldTransformBlock)
+				continue;
+
+			modelLadder_->Draw(*worldTransformBlock, camera_);
 		}
 	}
 

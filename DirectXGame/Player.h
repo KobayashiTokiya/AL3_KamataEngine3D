@@ -25,6 +25,7 @@ public:
 		kUnknown = -1,
 		kRoot,   // 通常状態
 		kAttack, // 攻撃中
+		kClimb,  // 登る
 	};
 
 	// 02_14 24枚目 攻撃フェーズ
@@ -34,6 +35,13 @@ public:
 		kAnticipation, // 予備動作
 		kAction,       // 前進動作
 		kRecovery,     // 余韻動作
+	};
+
+	enum class ClimbPhase
+	{
+		kUnknown = -1, // 無効な状態
+		kPreparatoryAction,
+		kClimb,
 	};
 
 	/// 初期化
@@ -83,6 +91,11 @@ public:
 
 	bool IsCollisionDisabled() const { return isCollisionDisabled_; }
 
+	//登る初期化
+	void BehaviorClimbInitialize();
+	//登る更新
+	void BehaviorClimbUpdate();
+
 private:
 	// ワールド変換データ
 	WorldTransform worldTransform_;
@@ -96,7 +109,7 @@ private:
 	// 02_05  フレームごとの加速度
 	static inline const float kAcceleration = 0.1f;
 	// 02_05 非入力時の摩擦係数
-	static inline const float kAttenuation = 0.05f;
+	static inline const float kAttenuation = 0.01f;
 	// 02_05 最高速度
 	static inline const float kLimitRunSpeed = 0.3f;
 	// 02_05 顔の向き
@@ -110,7 +123,7 @@ private:
 	// 02_05 着地フラグ
 	bool onGround_ = true;
 	// 02_05 ジャンプ定数もろもろ
-	static inline const float kJumpAcceleration = 20.0f;
+	static inline const float kJumpAcceleration = 15.0f;
 	static inline const float kGravityAcceleration = 0.98f;
 	static inline const float kLimitFallSpeed = 0.5f;
 
@@ -147,12 +160,18 @@ private:
 	// 02_08 スライド27枚目 壁接触している場合の処理
 	void UpdateOnWall(const CollisionMapInfo& info);
 
+	//梯子関連
+	//はしごを登る動作
+	//void UpdateOnLadder(const CollisionMapInfo& info);
+	float ladderSpeed = 0.1f;
+	//梯子に乗っているか
+	bool onLadder_ = false;
 	// 02_08スライド16枚目 着地時の速度減衰率
 	static inline const float kAttenuationLanding = 0.0f;
 	// 02_08スライド21枚目 微小な数値
 	static inline const float kGroundSearchHeight = 0.06f;
 	// 02_08スライド27枚目 着地時の速度減衰率
-	static inline const float kAttenuationWall = 0.2f;
+	static inline const float kAttenuationWall = 0.0f;
 	// 02_12 11枚目 デスフラグ
 	bool isDead_ = false;
 
@@ -181,7 +200,6 @@ private:
 
 	// 02_15
 	bool isCollisionDisabled_ = false; // 衝突無効化
-
-	//はしご
-
+	
+	
 };

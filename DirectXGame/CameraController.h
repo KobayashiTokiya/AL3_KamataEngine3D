@@ -40,7 +40,7 @@ private:
 	//カメラの目標座標
 	Vector3 destination_;
 	//座標補間割合
-	static inline const float kInterpolationRate = 0.1f;
+	static inline const float kInterpolationRate = 1.0f;
 	//速度掛け率
 	static inline const float kVelocityBias = 30.0f;
 	//追従対象の各方向へのカメラ移動範囲

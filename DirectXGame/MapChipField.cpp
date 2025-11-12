@@ -5,22 +5,20 @@
 #include <sstream>
 #include <string>
 
-namespace
+namespace 
 {
-std::map<std::string, MapChipType> mapChipTable = 
-{
+std::map<std::string, MapChipType> mapChipTable = {
     {"0", MapChipType::kBlank},
     {"1", MapChipType::kBlock},
+    {"2", MapChipType::kLadder},
 };
 }
 
-void MapChipField::ResetMapChipData() 
-{
-	//マップチップデータをリセット
+void MapChipField::ResetMapChipData() {
+	// マップチップデータをリセット
 	mapChipData_.data.clear();
 	mapChipData_.data.resize(kNumBlockVirtical);
-	for (std::vector<MapChipType>& mapChipDataLine : mapChipData_.data)
-	{
+	for (std::vector<MapChipType>& mapChipDataLine : mapChipData_.data) {
 		mapChipDataLine.resize(kNumBlockHorizontal);
 	}
 };
@@ -46,16 +44,14 @@ void MapChipField::LoadMapChipCsv(const std::string& filePath) {
 	std::string line;
 
 	// CSVからマップチップデータを読み込む
-	for (uint32_t i = 0; i < kNumBlockVirtical; ++i) 
-	{
+	for (uint32_t i = 0; i < kNumBlockVirtical; ++i) {
 		getline(mapChipCsv, line);
 
 		// 1行分の文字列をストリームに変換して解析しやすくする
 		std::istringstream line_stream(line);
 
-		for (uint32_t j = 0; j < kNumBlockHorizontal; ++j) 
-		{
-		
+		for (uint32_t j = 0; j < kNumBlockHorizontal; ++j) {
+
 			std::string word;
 			getline(line_stream, word, ',');
 
@@ -66,38 +62,30 @@ void MapChipField::LoadMapChipCsv(const std::string& filePath) {
 	}
 }
 
-Vector3 MapChipField::GetMapChipPositionByIndex(uint32_t xIndex, uint32_t yIndex) 
-{ 
-	return Vector3(kBlockWidth * xIndex, kBlockHeight * (kNumBlockVirtical - 1 - yIndex), 0);
-}
+Vector3 MapChipField::GetMapChipPositionByIndex(uint32_t xIndex, uint32_t yIndex) { return Vector3(kBlockWidth * xIndex, kBlockHeight * (kNumBlockVirtical - 1 - yIndex), 0); }
 
-MapChipType MapChipField::GetMapChipTypeByIndex(uint32_t xIndex, uint32_t yIndex)
-{
-	if (xIndex < 0 || kNumBlockHorizontal - 1 < xIndex)
-	{
+MapChipType MapChipField::GetMapChipTypeByIndex(uint32_t xIndex, uint32_t yIndex) {
+	if (xIndex < 0 || kNumBlockHorizontal - 1 < xIndex) {
 		return MapChipType::kBlank;
 	}
-	if (yIndex < 0 || kNumBlockVirtical - 1 < yIndex)
-	{
+	if (yIndex < 0 || kNumBlockVirtical - 1 < yIndex) {
 		return MapChipType::kBlank;
 	}
 
 	return mapChipData_.data[yIndex][xIndex];
 }
 
-MapChipField::IndexSet MapChipField::GetMapChipIndexSetByPosition(const Vector3& position)
-{ 
-	//座標からマップチップ番号を計算
+MapChipField::IndexSet MapChipField::GetMapChipIndexSetByPosition(const Vector3& position) {
+	// 座標からマップチップ番号を計算
 	IndexSet indexSet = {};
 	indexSet.xIndex = static_cast<uint32_t>((position.x + kBlockWidth / 2.0f) / kBlockWidth);
 	indexSet.yIndex = kNumBlockVirtical - 1 - static_cast<uint32_t>(position.y + kBlockHeight / 2.0f / kBlockHeight);
 	return indexSet;
 }
 
-MapChipField::Rect MapChipField::GetRectByIndex(uint32_t xIndex, uint32_t yIndex)
-{
-	//指定ブロックの中心座標を取得する
-	Vector3 center = GetMapChipPositionByIndex(xIndex, yIndex); 
+MapChipField::Rect MapChipField::GetRectByIndex(uint32_t xIndex, uint32_t yIndex) {
+	// 指定ブロックの中心座標を取得する
+	Vector3 center = GetMapChipPositionByIndex(xIndex, yIndex);
 
 	Rect rect;
 	rect.left = center.x - kBlockWidth / 2.0f;
@@ -107,4 +95,3 @@ MapChipField::Rect MapChipField::GetRectByIndex(uint32_t xIndex, uint32_t yIndex
 
 	return rect;
 }
-
