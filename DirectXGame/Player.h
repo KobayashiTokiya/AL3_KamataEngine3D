@@ -96,6 +96,11 @@ public:
 	//登る更新
 	void BehaviorClimbUpdate();
 
+	// アイス初期化
+	void BehaviorIceInitialize();
+	// アイス更新
+	void BehaviorIceUpdate();
+
 private:
 	// ワールド変換データ
 	WorldTransform worldTransform_;
@@ -107,11 +112,11 @@ private:
 	// 02_05 移動量
 	Vector3 velocity_ = {};
 	// 02_05  フレームごとの加速度
-	static inline const float kAcceleration = 0.3f;
+	static inline const float kAcceleration = 0.2f;
 	// 02_05 非入力時の摩擦係数
 	static inline const float kAttenuation = 0.05f;
 	// 02_05 最高速度
-	static inline const float kLimitRunSpeed = 0.3f;
+	static inline const float kLimitRunSpeed = 0.4f;
 	// 02_05 顔の向き
 	LRDirection lrDirection_ = LRDirection::kRight;
 	// 02_05 旋回開始時の角度

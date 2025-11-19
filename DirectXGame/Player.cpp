@@ -225,21 +225,16 @@ void Player::BehaviorClimbInitialize() {}
 
 // 登る更新
 void Player::BehaviorClimbUpdate() {
-	const Vector3 climbVelocty = {0.0f, 1.0f, 0.0f};
-
+	
+	float climbVelocty = 0.2f;
 	Vector3 velocty = {};
 
-	// if (onLadder_)
-	//{
-
-	if (Input::GetInstance()->PushKey(DIK_W)) {
-		velocity_.y = 0.5f;
+	if (Input::GetInstance()->PushKey(DIK_UP)) {
+		velocity_.y = climbVelocty;
 	}
-
-	if (Input::GetInstance()->PushKey(DIK_S)) {
-		velocity_.y = -0.5f;
-	}
-	//}
+	else if (Input::GetInstance()->PushKey(DIK_DOWN)) {
+		velocity_.y = -climbVelocty;
+	} 
 
 	// 衝突情報を初期化
 	CollisionMapInfo collisionMapInfo = {};
@@ -271,7 +266,7 @@ void Player::Initialize(Model* model, Model* modelAttack, Camera* camera, const 
 // 移動入力(02_07 スライド10枚目)
 void Player::InputMove() {
 
-	if (onGround_ || onLadder_&&! onIce_) {
+	if ((onGround_ || onLadder_)&&! onIce_) {
 
 		if (Input::GetInstance()->PushKey(DIK_RIGHT)) {
 			if (lrDirection_ != LRDirection::kRight) {
@@ -292,75 +287,53 @@ void Player::InputMove() {
 		}
 	}
 
-	if (onIce_&&onGround_ && onLadder_) {
-		Vector3 acceleration = {};
-		if (Input::GetInstance()->PushKey(DIK_RIGHT)) {
-			acceleration.x += kAcceleration;
-		
-		} else if (Input::GetInstance()->PushKey(DIK_LEFT)) {
-			acceleration.x -= kAcceleration;
-		} else {
-			// 入力がないときに摩擦で減速
-			if (velocity_.x > 0.0f) {
-				velocity_.x -= kAttenuation;
-				if (velocity_.x < 0.0f)
-					velocity_.x = 0.0f;
-			} else if (velocity_.x < 0.0f) {
-				velocity_.x += kAttenuation;
-				if (velocity_.x > 0.0f)
-					velocity_.x = 0.0f;
+	if (onIce_ && (!onGround_ || !onLadder_)) {
+		if (Input::GetInstance()->PushKey(DIK_RIGHT) || Input::GetInstance()->PushKey(DIK_LEFT)) {
+
+			// 左右加速
+			Vector3 acceleration = {};
+			if (Input::GetInstance()->PushKey(DIK_RIGHT)) {
+
+				if (velocity_.x < 0.0f) {
+					// 旋回の最初は移動減衰をかける
+					velocity_.x *= (1.0f - kAttenuation);
+				}
+				acceleration.x += kAcceleration / 60.0f;
+				if (lrDirection_ != LRDirection::kRight) {
+					lrDirection_ = LRDirection::kRight;
+					turnFirstRotationY_ = worldTransform_.rotation_.y;
+					turnTimer_ = kTimeTurn;
+				}
+			} else if (Input::GetInstance()->PushKey(DIK_LEFT)) {
+				if (velocity_.x > 0.0f) {
+					// 旋回の最初は移動減衰をかける
+					velocity_.x *= (1.0f - kAttenuation);
+				}
+				acceleration.x -= kAcceleration / 60.0f;
+				if (lrDirection_ != LRDirection::kLeft) {
+					lrDirection_ = LRDirection::kLeft;
+					turnFirstRotationY_ = worldTransform_.rotation_.y;
+					turnTimer_ = kTimeTurn;
+				}
 			}
+
+			velocity_ += acceleration;
+			velocity_.x = std::clamp(velocity_.x, -kLimitRunSpeed, kLimitRunSpeed);
+		} else {
+			// 非入力時は移動減衰をかける
+			velocity_.x *= (1.0f - kAttenuation);
 		}
-		velocity_ += acceleration;
-		// 最大速度制限
-		velocity_.x = std::clamp(velocity_.x, -kLimitRunSpeed, kLimitRunSpeed);
+
+		//ほぼ0の場合に0にする
+		if (std::abs(velocity_.x) <= 0.0001f) {
+			velocity_.x = 0.0f;
+		}
 	}
 	
-
-	// if (Input::GetInstance()->PushKey(DIK_RIGHT) || Input::GetInstance()->PushKey(DIK_LEFT)) {
-	//
-	//	// 左右加速
-	//	Vector3 acceleration = {};
-	//	if (Input::GetInstance()->PushKey(DIK_RIGHT)) {
-	//
-	//		if (velocity_.x < 0.0f) {
-	//			// 旋回の最初は移動減衰をかける
-	//			velocity_.x *= (1.0f - kAttenuation);
-	//		}
-	//		acceleration.x += kAcceleration / 60.0f;
-	//		if (lrDirection_ != LRDirection::kRight) {
-	//			lrDirection_ = LRDirection::kRight;
-	//			turnFirstRotationY_ = worldTransform_.rotation_.y;
-	//			turnTimer_ = kTimeTurn;
-	//		}
-	//	} else if (Input::GetInstance()->PushKey(DIK_LEFT)) {
-	//		if (velocity_.x > 0.0f) {
-	//			// 旋回の最初は移動減衰をかける
-	//			velocity_.x *= (1.0f - kAttenuation);
-	//		}
-	//		acceleration.x -= kAcceleration / 60.0f;
-	//		if (lrDirection_ != LRDirection::kLeft) {
-	//			lrDirection_ = LRDirection::kLeft;
-	//			turnFirstRotationY_ = worldTransform_.rotation_.y;
-	//			turnTimer_ = kTimeTurn;
-	//		}
-	//	}
-	//
-	//	velocity_ += acceleration;
-	//	velocity_.x = std::clamp(velocity_.x, -kLimitRunSpeed, kLimitRunSpeed);
-	// } else {
-	//	// 非入力時は移動減衰をかける
-	//	velocity_.x *= (1.0f - kAttenuation);
-	// }
-
-	// ほぼ0の場合に0にする
-	// if (std::abs(velocity_.x) <= 0.0001f) {
-	//	velocity_.x = 0.0f;
-	//}
 	if (onGround_) {
 		if (Input::GetInstance()->PushKey(DIK_UP)) {
 			// ジャンプ初速
-			velocity_ += Vector3(0, kJumpAcceleration / 60.0f, 0);
+			velocity_.y = kJumpAcceleration / 60.0f;
 		}
 	} else if (!onLadder_) {
 		// 落下速度（はしごにいないときだけ重力をかける）
@@ -458,15 +431,10 @@ void Player::CheckMapCollisionUp(CollisionMapInfo& info) {
 		onLadder_ = true;   // ← フラグON
 		velocity_.y = 0.0f; // ← 重力無効化
 
-		if (Input::GetInstance()->PushKey(DIK_W)) {
-			worldTransform_.translation_.y += ladderSpeed;
-		} else if (Input::GetInstance()->PushKey(DIK_S)) {
-			worldTransform_.translation_.y -= ladderSpeed;
-		}
+		BehaviorClimbUpdate();
 	}
 
 	if (ice) {
-		// 左右移動操作
 		onIce_ = true;
 		// 現在座標が壁の外か判定
 		MapChipField::IndexSet indexSetNow;
@@ -548,26 +516,18 @@ void Player::CheckMapCollisionDown(CollisionMapInfo& info) {
 		onLadder_ = true;   // ← フラグON
 		velocity_.y = 0.0f; // ← 重力無効化
 
-		if (Input::GetInstance()->PushKey(DIK_W)) {
-			worldTransform_.translation_.y += ladderSpeed;
-		} else if (Input::GetInstance()->PushKey(DIK_S)) {
-			worldTransform_.translation_.y -= ladderSpeed;
-		}
+		BehaviorClimbUpdate();
 	}
 
 	if (ice) {
-		// 左右移動操作
 		onIce_ = true;
-		// 現在座標が壁の外か判定
-		MapChipField::IndexSet indexSetNow;
-		indexSetNow = mapChipField_->GetMapChipIndexSetByPosition(worldTransform_.translation_ + Vector3(0, +kHeight / 2.0f, 0));
-		if (indexSetNow.yIndex != indexSet.yIndex) {
-			// めり込みを排除する方向に移動量を設定する
-			indexSet = mapChipField_->GetMapChipIndexSetByPosition(worldTransform_.translation_ + info.move + Vector3(0, +kHeight / 2.0f, 0));
-			MapChipField::Rect rect = mapChipField_->GetRectByIndex(indexSet.xIndex, indexSet.yIndex);
-			info.move.y = std::max(0.0f, rect.bottom - worldTransform_.translation_.y - (kHeight / 2.0f + kBlank));
-			info.ceiling = true;
-		}
+		// めり込みを排除する方向に移動量を設定する
+		indexSet = mapChipField_->GetMapChipIndexSetByPosition(worldTransform_.translation_ + info.move + Vector3(0, -kHeight / 2.0f, 0));
+		// めり込み先ブロックの範囲矩形
+		MapChipField::Rect rect = mapChipField_->GetRectByIndex(indexSet.xIndex, indexSet.yIndex);
+		info.move.y = std::min(0.0f, rect.top - worldTransform_.translation_.y + (kHeight / 2.0f + kBlank));
+		// 地面に当たったことを記録する
+		info.landing = true;
 	}
 }
 
@@ -704,25 +664,20 @@ void Player::CheckMapCollisionRight(CollisionMapInfo& info) {
 		onLadder_ = true;   // ← フラグON
 		velocity_.y = 0.0f; // ← 重力無効化
 
-		if (Input::GetInstance()->PushKey(DIK_W)) {
-			worldTransform_.translation_.y += ladderSpeed;
-		} else if (Input::GetInstance()->PushKey(DIK_S)) {
-			worldTransform_.translation_.y -= ladderSpeed;
-		}
+		BehaviorClimbUpdate();
 	}
 
 	if (ice) {
-		// 左右移動操作
 		onIce_ = true;
 		// 現在座標が壁の外か判定
 		MapChipField::IndexSet indexSetNow;
-		indexSetNow = mapChipField_->GetMapChipIndexSetByPosition(worldTransform_.translation_ + Vector3(0, +kHeight / 2.0f, 0));
-		if (indexSetNow.yIndex != indexSet.yIndex) {
+		indexSetNow = mapChipField_->GetMapChipIndexSetByPosition(worldTransform_.translation_ + Vector3(+kWidth / 2.0f, 0, 0));
+		if (indexSetNow.xIndex != indexSet.xIndex) {
 			// めり込みを排除する方向に移動量を設定する
-			indexSet = mapChipField_->GetMapChipIndexSetByPosition(worldTransform_.translation_ + info.move + Vector3(0, +kHeight / 2.0f, 0));
+			indexSet = mapChipField_->GetMapChipIndexSetByPosition(worldTransform_.translation_ + info.move + Vector3(+kWidth / 2.0f, 0, 0));
 			MapChipField::Rect rect = mapChipField_->GetRectByIndex(indexSet.xIndex, indexSet.yIndex);
-			info.move.y = std::max(0.0f, rect.bottom - worldTransform_.translation_.y - (kHeight / 2.0f + kBlank));
-			info.ceiling = true;
+			info.move.x = std::max(0.0f, rect.left - worldTransform_.translation_.x - (kWidth / 2.0f + kBlank));
+			info.hitWall = true;
 		}
 	}
 }
@@ -756,9 +711,9 @@ void Player::CheckMapCollisionLeft(CollisionMapInfo& info) {
 	}
 	if (mapChipType == MapChipType::kLadder) {
 		ladder = true;
-		// if (Input::GetInstance()->PushKey(DIK_W)) {
+		// if (Input::GetInstance()->PushKey(DIK_RIGHT)) {
 		//	worldTransform_.translation_.y += ladderSpeed;
-		// } else if (Input::GetInstance()->PushKey(DIK_S)) {
+		// } else if (Input::GetInstance()->PushKey(DIK_LEFT)) {
 		//	worldTransform_.translation_.y -= ladderSpeed;
 		// }
 	}
@@ -775,9 +730,9 @@ void Player::CheckMapCollisionLeft(CollisionMapInfo& info) {
 	}
 	if (mapChipType == MapChipType::kLadder) {
 		ladder = true;
-		// if (Input::GetInstance()->PushKey(DIK_W)) {
+		// if (Input::GetInstance()->PushKey(DIK_RIGHT)) {
 		//	worldTransform_.translation_.y += ladderSpeed;
-		// } else if (Input::GetInstance()->PushKey(DIK_S)) {
+		// } else if (Input::GetInstance()->PushKey(DIK_LEFT)) {
 		//	worldTransform_.translation_.y -= ladderSpeed;
 		// }
 	}
@@ -804,26 +759,21 @@ void Player::CheckMapCollisionLeft(CollisionMapInfo& info) {
 		onLadder_ = true;   // ← フラグON
 		velocity_.y = 0.0f; // ← 重力無効化
 
-		if (Input::GetInstance()->PushKey(DIK_W)) {
-			worldTransform_.translation_.y += ladderSpeed;
-		} else if (Input::GetInstance()->PushKey(DIK_S)) {
-			worldTransform_.translation_.y -= ladderSpeed;
-		}
+		BehaviorClimbUpdate();
 	}
 
 	if (ice) {
-		// 左右移動操作
 		onIce_ = true;
-
 		// 現在座標が壁の外か判定
 		MapChipField::IndexSet indexSetNow;
-		indexSetNow = mapChipField_->GetMapChipIndexSetByPosition(worldTransform_.translation_ + Vector3(0, +kHeight / 2.0f, 0));
-		if (indexSetNow.yIndex != indexSet.yIndex) {
+		indexSetNow = mapChipField_->GetMapChipIndexSetByPosition(worldTransform_.translation_ + Vector3(-kWidth / 2.0f, 0, 0));
+
+		if (indexSetNow.xIndex != indexSet.xIndex) {
 			// めり込みを排除する方向に移動量を設定する
-			indexSet = mapChipField_->GetMapChipIndexSetByPosition(worldTransform_.translation_ + info.move + Vector3(0, +kHeight / 2.0f, 0));
+			indexSet = mapChipField_->GetMapChipIndexSetByPosition(worldTransform_.translation_ + info.move + Vector3(-kWidth / 2.0f, 0, 0));
 			MapChipField::Rect rect = mapChipField_->GetRectByIndex(indexSet.xIndex, indexSet.yIndex);
-			info.move.y = std::max(0.0f, rect.bottom - worldTransform_.translation_.y - (kHeight / 2.0f + kBlank));
-			info.ceiling = true;
+			info.move.x = std::max(0.0f, rect.right - worldTransform_.translation_.x - (kWidth / 2.0f + kBlank));
+			info.hitWall = true;
 		}
 	}
 }

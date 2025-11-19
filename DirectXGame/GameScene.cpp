@@ -1,5 +1,7 @@
 #include "GameScene.h"
 #include "Math.h"
+#include <imgui_impl_dx12.h>
+#include <imgui_impl_win32.h>
 
 using namespace KamataEngine;
 
@@ -38,7 +40,6 @@ GameScene::~GameScene() {
 
 void GameScene::Initialize() {
 
-
 	// ファイル名を指定してテクスチャを読み込む
 	textureHandle_ = TextureManager::Load("sample.png");
 	// スプライト生成
@@ -54,10 +55,10 @@ void GameScene::Initialize() {
 	// ブロックモデル
 	modelBlock_ = Model::CreateFromOBJ("block");
 
-	//梯子モデル
+	// 梯子モデル
 	modelLadder_ = Model::CreateFromOBJ("enemy");
-	
-	//氷ブロックモデル
+
+	// 氷ブロックモデル
 	modelIce_ = Model::CreateFromOBJ("enemy");
 
 	// デバッグカメラの生成
@@ -79,7 +80,7 @@ void GameScene::Initialize() {
 	kamaModel_ = Model::CreateFromOBJ("kama", "kama.png");
 	worldTransformKama_.Initialize();
 	worldTransformKama_.translation_ = {1000.0f, 0.0f, 500.0f}; // 位置
-	worldTransformKama_.scale_ = {5.0f, 5.0f, 5.0f};         // サイズ調整
+	worldTransformKama_.scale_ = {5.0f, 5.0f, 5.0f};            // サイズ調整
 
 	// 02_07 マップチップクラスを作ってからプレイヤークラスを作る
 	// という順番に入れ替える
@@ -145,6 +146,11 @@ void GameScene::Initialize() {
 	fade_ = new Fade();
 	fade_->Initialize();
 	fade_->Start(Fade::Status::FadeIn, 1.0f);
+
+
+	ImGui_ImplDX12_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
 }
 
 // 02_12 10枚目 GameScene::Update関数で呼び出しておく
@@ -210,7 +216,7 @@ void GameScene::LadderBlocks() {
 
 		for (uint32_t j = 0; j < numBlockHorizontal; ++j) {
 
-			//ブロックを変える
+			// ブロックを変える
 			if (mapChipField_->GetMapChipTypeByIndex(j, i) == MapChipType::kLadder) {
 				WorldTransform* worldTransform = new WorldTransform();
 				worldTransform->Initialize();
@@ -246,7 +252,6 @@ void GameScene::IceBlocks() {
 		}
 	}
 }
-
 
 // ゲームシーン更新
 void GameScene::Update() {
@@ -284,10 +289,10 @@ void GameScene::Update() {
 
 		// UpdateCamera();
 #ifdef _DEBUG
-		//if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
+		// if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
 		//	// フラグをトグル
 		//	isDebugCameraActive_ = !isDebugCameraActive_;
-		//}
+		// }
 #endif
 
 		// カメラの処理
@@ -350,8 +355,8 @@ void GameScene::Update() {
 
 		for (Enemy* enemy : enemies_) {
 			enemy->Update();
-		}		debugCamera_->Update();
-	
+		}
+		debugCamera_->Update();
 
 		//		UpdateCamera();
 		/*
@@ -386,7 +391,7 @@ void GameScene::Update() {
 				WorldTransformUpdate(*worldTransformBlock);
 			}
 		}
-		//梯子の更新
+		// 梯子の更新
 		for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformLadders_) {
 			for (WorldTransform*& worldTransformBlock : worldTransformBlockLine) {
 
@@ -547,7 +552,7 @@ void GameScene::Update() {
 
 void GameScene::Draw() {
 
-
+	
 
 	// DirectXCommonインスタンスの取得
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
@@ -561,10 +566,10 @@ void GameScene::Draw() {
 
 	// 天球描画
 	skydome_->Draw();
-	
-	//釜
+
+	// 釜
 	kamaModel_->Draw(worldTransformKama_, camera_);
-	
+
 	// ブロックの描画
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform*& worldTransformBlock : worldTransformBlockLine) {
@@ -583,7 +588,7 @@ void GameScene::Draw() {
 			modelLadder_->Draw(*worldTransformBlock, camera_);
 		}
 	}
-	//氷ブロック
+	// 氷ブロック
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformIce_) {
 		for (WorldTransform*& worldTransformBlock : worldTransformBlockLine) {
 			if (!worldTransformBlock)
@@ -612,8 +617,9 @@ void GameScene::Draw() {
 	// スプライト描画後処理
 	Sprite::PostDraw();
 
-	// 02_13 28枚目
 	fade_->Draw();
+	// 02_13 28枚目
+	// fade_->Draw();
 }
 
 // 02_10 16枚目
