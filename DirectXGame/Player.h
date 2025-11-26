@@ -96,12 +96,8 @@ public:
 	//登る更新
 	void BehaviorClimbUpdate();
 
-	// 氷ブロックに乗った時の初期化
-	void IceInitialize();
 	// 氷ブロックに乗った時の更新
 	void IceUpdate();
-	// 普通のブロックに乗った時の初期化
-	void GroundInitialize();
 	//　普通のブロックに乗った時の更新
 	void GroundUpdate();
 

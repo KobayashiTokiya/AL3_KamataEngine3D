@@ -261,8 +261,8 @@ void Player::Initialize(Model* model, Model* modelAttack, Camera* camera, const 
 	camera_ = camera;
 }
 
+//氷ブロック内のプレイヤーの動き
 void Player::IceUpdate() {
-
 	// 左右加速
 	Vector3 acceleration = {};
 	if (Input::GetInstance()->PushKey(DIK_RIGHT) || Input::GetInstance()->PushKey(DIK_LEFT)) {
@@ -303,6 +303,7 @@ void Player::IceUpdate() {
 	}
 }
 
+//普通ブロック内のプレイヤーの動き
 void Player::GroundUpdate() {
 	if (Input::GetInstance()->PushKey(DIK_RIGHT)) {
 		if (lrDirection_ != LRDirection::kRight) {
@@ -325,12 +326,10 @@ void Player::GroundUpdate() {
 
 // 移動入力(02_07 スライド10枚目)
 void Player::InputMove() {
-
 	if (onIce_) {
 		IceUpdate();
-	}
-	else if ((onGround_ || onLadder_) && !onIce_) {
-		onIce_ = false;
+	}	
+	else if ((onGround_ || onLadder_)) {
 		GroundUpdate();
 	}
 
