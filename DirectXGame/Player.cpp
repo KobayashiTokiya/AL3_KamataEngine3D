@@ -63,10 +63,6 @@ void Player::BehaviorRootInitialize() {}
 
 // 02_14 6枚目 通常行動更新
 void Player::BehaviorRootUpdate() {
-
-	// 移動入力(02_07 スライド10枚目)
-	InputMove();
-
 	// 衝突情報を初期化(02_07 スライド13枚目)
 	CollisionMapInfo collisionMapInfo = {};
 	collisionMapInfo.move = velocity_;
@@ -89,6 +85,9 @@ void Player::BehaviorRootUpdate() {
 
 	// 接地判定
 	UpdateOnGround(collisionMapInfo);
+
+	// 移動入力(02_07 スライド10枚目)
+	InputMove();
 
 	// 旋回制御
 	if (turnTimer_ > 0.0f) {
@@ -225,16 +224,15 @@ void Player::BehaviorClimbInitialize() {}
 
 // 登る更新
 void Player::BehaviorClimbUpdate() {
-	
+
 	float climbVelocty = 0.2f;
 	Vector3 velocty = {};
 
 	if (Input::GetInstance()->PushKey(DIK_UP)) {
 		velocity_.y = climbVelocty;
-	}
-	else if (Input::GetInstance()->PushKey(DIK_DOWN)) {
+	} else if (Input::GetInstance()->PushKey(DIK_DOWN)) {
 		velocity_.y = -climbVelocty;
-	} 
+	}
 
 	// 衝突情報を初期化
 	CollisionMapInfo collisionMapInfo = {};
@@ -263,73 +261,79 @@ void Player::Initialize(Model* model, Model* modelAttack, Camera* camera, const 
 	camera_ = camera;
 }
 
-// 移動入力(02_07 スライド10枚目)
-void Player::InputMove() {
+void Player::IceUpdate() {
 
-	if ((onGround_ || onLadder_)&&! onIce_) {
+	// 左右加速
+	Vector3 acceleration = {};
+	if (Input::GetInstance()->PushKey(DIK_RIGHT) || Input::GetInstance()->PushKey(DIK_LEFT)) {
 
 		if (Input::GetInstance()->PushKey(DIK_RIGHT)) {
+
+			if (velocity_.x < 0.0f) {
+				// 旋回の最初は移動減衰をかける
+				velocity_.x *= (1.0f - kAttenuation);
+			}
+			acceleration.x += kAcceleration / 60.0f;
 			if (lrDirection_ != LRDirection::kRight) {
 				lrDirection_ = LRDirection::kRight;
 				turnFirstRotationY_ = worldTransform_.rotation_.y;
 				turnTimer_ = kTimeTurn;
 			}
-			velocity_.x = 0.15f;
 		} else if (Input::GetInstance()->PushKey(DIK_LEFT)) {
+			if (velocity_.x > 0.0f) {
+				// 旋回の最初は移動減衰をかける
+				velocity_.x *= (1.0f - kAttenuation);
+			}
+			acceleration.x -= kAcceleration / 60.0f;
 			if (lrDirection_ != LRDirection::kLeft) {
 				lrDirection_ = LRDirection::kLeft;
 				turnFirstRotationY_ = worldTransform_.rotation_.y;
 				turnTimer_ = kTimeTurn;
 			}
-			velocity_.x = -0.15f;
-		} else {
-			velocity_.x = 0.0f;
 		}
+
+		velocity_ += acceleration;
+		velocity_.x = std::clamp(velocity_.x, -kLimitRunSpeed, kLimitRunSpeed);
+	} else {
+		// 非入力時は移動減衰をかける
+		velocity_.x *= (1.0f - kAttenuation);
+	} // ほぼ0の場合に0にする
+	if (std::abs(velocity_.x) <= 0.0001f) {
+		velocity_.x = 0.0f;
+	}
+}
+
+void Player::GroundUpdate() {
+	if (Input::GetInstance()->PushKey(DIK_RIGHT)) {
+		if (lrDirection_ != LRDirection::kRight) {
+			lrDirection_ = LRDirection::kRight;
+			turnFirstRotationY_ = worldTransform_.rotation_.y;
+			turnTimer_ = kTimeTurn;
+		}
+		velocity_.x = 0.15f;
+	} else if (Input::GetInstance()->PushKey(DIK_LEFT)) {
+		if (lrDirection_ != LRDirection::kLeft) {
+			lrDirection_ = LRDirection::kLeft;
+			turnFirstRotationY_ = worldTransform_.rotation_.y;
+			turnTimer_ = kTimeTurn;
+		}
+		velocity_.x = -0.15f;
+	} else {
+		velocity_.x = 0.0f;
+	}
+}
+
+// 移動入力(02_07 スライド10枚目)
+void Player::InputMove() {
+
+	if (onIce_) {
+		IceUpdate();
+	}
+	else if ((onGround_ || onLadder_) && !onIce_) {
+		onIce_ = false;
+		GroundUpdate();
 	}
 
-	if (onIce_ && (!onGround_ || !onLadder_)) {
-		if (Input::GetInstance()->PushKey(DIK_RIGHT) || Input::GetInstance()->PushKey(DIK_LEFT)) {
-
-			// 左右加速
-			Vector3 acceleration = {};
-			if (Input::GetInstance()->PushKey(DIK_RIGHT)) {
-
-				if (velocity_.x < 0.0f) {
-					// 旋回の最初は移動減衰をかける
-					velocity_.x *= (1.0f - kAttenuation);
-				}
-				acceleration.x += kAcceleration / 60.0f;
-				if (lrDirection_ != LRDirection::kRight) {
-					lrDirection_ = LRDirection::kRight;
-					turnFirstRotationY_ = worldTransform_.rotation_.y;
-					turnTimer_ = kTimeTurn;
-				}
-			} else if (Input::GetInstance()->PushKey(DIK_LEFT)) {
-				if (velocity_.x > 0.0f) {
-					// 旋回の最初は移動減衰をかける
-					velocity_.x *= (1.0f - kAttenuation);
-				}
-				acceleration.x -= kAcceleration / 60.0f;
-				if (lrDirection_ != LRDirection::kLeft) {
-					lrDirection_ = LRDirection::kLeft;
-					turnFirstRotationY_ = worldTransform_.rotation_.y;
-					turnTimer_ = kTimeTurn;
-				}
-			}
-
-			velocity_ += acceleration;
-			velocity_.x = std::clamp(velocity_.x, -kLimitRunSpeed, kLimitRunSpeed);
-		} else {
-			// 非入力時は移動減衰をかける
-			velocity_.x *= (1.0f - kAttenuation);
-		}
-
-		//ほぼ0の場合に0にする
-		if (std::abs(velocity_.x) <= 0.0001f) {
-			velocity_.x = 0.0f;
-		}
-	}
-	
 	if (onGround_) {
 		if (Input::GetInstance()->PushKey(DIK_UP)) {
 			// ジャンプ初速
@@ -667,6 +671,7 @@ void Player::CheckMapCollisionRight(CollisionMapInfo& info) {
 		BehaviorClimbUpdate();
 	}
 
+	// 氷
 	if (ice) {
 		onIce_ = true;
 		// 現在座標が壁の外か判定
@@ -793,7 +798,7 @@ Vector3 Player::CornerPosition(const Vector3& center, Corner corner) {
 #pragma endregion
 
 void Player::Draw() {
-	
+
 	model_->Draw(worldTransform_, *camera_);
 	if (behavior_ == Behavior::kAttack) {
 		switch (attackPhase_) {

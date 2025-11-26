@@ -96,10 +96,14 @@ public:
 	//登る更新
 	void BehaviorClimbUpdate();
 
-	// アイス初期化
-	void BehaviorIceInitialize();
-	// アイス更新
-	void BehaviorIceUpdate();
+	// 氷ブロックに乗った時の初期化
+	void IceInitialize();
+	// 氷ブロックに乗った時の更新
+	void IceUpdate();
+	// 普通のブロックに乗った時の初期化
+	void GroundInitialize();
+	//　普通のブロックに乗った時の更新
+	void GroundUpdate();
 
 private:
 	// ワールド変換データ
@@ -177,11 +181,11 @@ private:
 
 
 	// 02_08スライド16枚目 着地時の速度減衰率
-	static inline const float kAttenuationLanding = 0.0f;
+	static inline const float kAttenuationLanding = 0.03f;
 	// 02_08スライド21枚目 微小な数値
-	static inline const float kGroundSearchHeight = 0.06f;
+	static inline const float kGroundSearchHeight = 0.08f;
 	// 02_08スライド27枚目 着地時の速度減衰率
-	static inline const float kAttenuationWall = 0.0f;
+	static inline const float kAttenuationWall = 0.3f;
 	// 02_12 11枚目 デスフラグ
 	bool isDead_ = false;
 
