@@ -147,10 +147,9 @@ void GameScene::Initialize() {
 	fade_->Initialize();
 	fade_->Start(Fade::Status::FadeIn, 1.0f);
 
-
-	ImGui_ImplDX12_NewFrame();
-	ImGui_ImplWin32_NewFrame();
-	ImGui::NewFrame();
+	//ImGui_ImplDX12_NewFrame();
+	//ImGui_ImplWin32_NewFrame();
+	//ImGui::NewFrame();
 }
 
 // 02_12 10枚目 GameScene::Update関数で呼び出しておく
@@ -551,8 +550,6 @@ void GameScene::Update() {
 }
 
 void GameScene::Draw() {
-
-	
 
 	// DirectXCommonインスタンスの取得
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
