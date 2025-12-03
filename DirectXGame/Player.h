@@ -96,6 +96,15 @@ public:
 	//登る更新
 	void BehaviorClimbUpdate();
 
+	// 氷ブロックに乗った時の更新
+	void IceUpdate();
+	//　普通のブロックに乗った時の更新
+	void normalAction();
+
+	 bool GetGround() const { return onGround_; }
+	bool GetIce() const { return onIce_; }
+	 bool GetLadder() const { return onLadder_; }
+
 private:
 	// ワールド変換データ
 	WorldTransform worldTransform_;
@@ -104,14 +113,18 @@ private:
 	// テクスチャハンドル
 	uint32_t textureHandle_ = 0u;
 	Camera* camera_ = nullptr;
-	// 02_05 移動量
+
+	//普通のブロックと梯子のブロックの移動量
 	Vector3 velocity_ = {};
+	//氷ブロックの移動量
+	//Vector3 velocityIce_ = {};
+	
 	// 02_05  フレームごとの加速度
-	static inline const float kAcceleration = 0.1f;
+	static inline const float kAcceleration = 0.2f;
 	// 02_05 非入力時の摩擦係数
-	static inline const float kAttenuation = 0.01f;
+	static inline const float kAttenuation = 0.05f;
 	// 02_05 最高速度
-	static inline const float kLimitRunSpeed = 0.3f;
+	static inline const float kLimitRunSpeed = 0.4f;
 	// 02_05 顔の向き
 	LRDirection lrDirection_ = LRDirection::kRight;
 	// 02_05 旋回開始時の角度
@@ -157,6 +170,8 @@ private:
 	// 02_08スライド14枚目 設置状態の切り替え処理
 	void UpdateOnGround(const CollisionMapInfo& info);
 
+	void UpdateOnIce(const CollisionMapInfo& info);
+
 	// 02_08 スライド27枚目 壁接触している場合の処理
 	void UpdateOnWall(const CollisionMapInfo& info);
 
@@ -166,12 +181,17 @@ private:
 	float ladderSpeed = 0.1f;
 	//梯子に乗っているか
 	bool onLadder_ = false;
+
+	//氷ブロック関連
+	bool onIce_ = false;
+
+
 	// 02_08スライド16枚目 着地時の速度減衰率
-	static inline const float kAttenuationLanding = 0.0f;
+	static inline const float kAttenuationLanding = 0.03f;
 	// 02_08スライド21枚目 微小な数値
-	static inline const float kGroundSearchHeight = 0.06f;
+	static inline const float kGroundSearchHeight = 0.08f;
 	// 02_08スライド27枚目 着地時の速度減衰率
-	static inline const float kAttenuationWall = 0.0f;
+	static inline const float kAttenuationWall = 0.3f;
 	// 02_12 11枚目 デスフラグ
 	bool isDead_ = false;
 
