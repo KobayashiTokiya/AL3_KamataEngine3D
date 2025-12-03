@@ -182,8 +182,12 @@ private:
 	//梯子に乗っているか
 	bool onLadder_ = false;
 
-	//氷ブロック関連
+	//氷ブロック判定
 	bool onIce_ = false;
+
+	//崩れるブロック判定
+	bool onCollapse = false;
+
 
 
 	// 02_08スライド16枚目 着地時の速度減衰率

@@ -252,6 +252,33 @@ void GameScene::IceBlocks() {
 	}
 }
 
+void GameScene::CollapseBlocs()
+{
+	uint32_t numBlockVirtical = mapChipField_->GetNumBlockVirtical();
+	uint32_t numBlockHorizontal = mapChipField_->GetNumBlockHorizontal();
+
+	worldTransformCollapse_.resize(numBlockVirtical);
+	for (uint32_t i = 0; i < numBlockVirtical; ++i) {
+		worldTransformCollapse_[i].resize(numBlockHorizontal);
+	}
+
+	// ブロックの生成
+	for (uint32_t i = 0; i < numBlockVirtical; ++i) {
+
+		for (uint32_t j = 0; j < numBlockHorizontal; ++j) {
+
+			// ブロックを変える
+			if (mapChipField_->GetMapChipTypeByIndex(j, i) == MapChipType::kCollapse) {
+				WorldTransform* worldTransform = new WorldTransform();
+				worldTransform->Initialize();
+				worldTransformCollapse_[i][j] = worldTransform;
+				worldTransformCollapse_[i][j]->translation_ = mapChipField_->GetMapChipPositionByIndex(j, i);
+			}
+		}
+	}
+}
+
+
 // ゲームシーン更新
 void GameScene::Update() {
 
@@ -339,6 +366,18 @@ void GameScene::Update() {
 
 				// アフィン変換～DirectXに転送
 				WorldTransformUpdate(*worldTransformIce);
+			}
+		}
+
+		// の更新
+		for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformCollapse_) {
+			for (WorldTransform*& worldTransformCollapse : worldTransformBlockLine) {
+
+				if (!worldTransformCollapse)
+					continue;
+
+				// アフィン変換～DirectXに転送
+				WorldTransformUpdate(*worldTransformCollapse);
 			}
 		}
 

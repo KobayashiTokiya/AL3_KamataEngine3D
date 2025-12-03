@@ -33,6 +33,9 @@ public:
 	//氷ブロック
 	void IceBlocks();
 
+	//崩れるブロック
+	void CollapseBlocs();
+
 	// 02_12
 	void ChangePhase();
 
@@ -78,7 +81,10 @@ private:
 	Model* modelIce_ = nullptr;
 	std::vector<std::vector<WorldTransform*>> worldTransformIce_;
 
-
+	//崩れるブロック
+	Model* modelCollapse_ = nullptr;
+	std::vector<std::vector<WorldTransform*>> worldTransformCollapse_;
+	
 
 	// デバックカメラ有効
 	bool isDebugCameraActive_ = false;

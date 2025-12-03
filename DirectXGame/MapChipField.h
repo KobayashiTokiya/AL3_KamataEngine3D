@@ -9,10 +9,11 @@ using namespace KamataEngine;
 
 enum class MapChipType 
 {
-	kBlank,  //空白
-	kBlock,  //ブロック
-	kLadder, //梯子
-	kIceBlock//滑る床
+	kBlank,   //空白
+	kBlock,   //ブロック
+	kLadder,  //梯子
+	kIceBlock,//滑る床
+	kCollapse //崩れる床
 };
 
 struct MapChipData
