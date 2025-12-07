@@ -68,12 +68,11 @@ private:
 	// プレイヤー
 	Player* player_ = nullptr;
 	KamataEngine::Model* playerModel_ = nullptr;
+
 	// ブロックモデル
 	KamataEngine::Model* modelBlock_ = nullptr;
 	std::vector<std::vector<KamataEngine::WorldTransform*>> worldTransformBlocks_;
-
-	//梯子関連
-	//モデル
+	//梯子
 	Model* modelLadder_ = nullptr;
 	std::vector<std::vector<WorldTransform*>> worldTransformLadders_;
 

@@ -101,9 +101,10 @@ public:
 	//　普通のブロックに乗った時の更新
 	void normalAction();
 
-	 bool GetGround() const { return onGround_; }
+	bool GetGround() const { return onGround_; }
 	bool GetIce() const { return onIce_; }
-	 bool GetLadder() const { return onLadder_; }
+	bool GetLadder() const { return onLadder_; }
+	bool GetCollapse() const { return onCollapse_; }
 
 private:
 	// ワールド変換データ
@@ -186,7 +187,7 @@ private:
 	bool onIce_ = false;
 
 	//崩れるブロック判定
-	bool onCollapse = false;
+	bool onCollapse_ = false;
 
 
 

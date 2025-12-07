@@ -13,6 +13,7 @@ GameScene::~GameScene() {
 	delete modelBlock_;
 	delete modelLadder_;
 	delete modelIce_;
+	delete modelCollapse_;
 
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
@@ -61,6 +62,9 @@ void GameScene::Initialize() {
 	// 氷ブロックモデル
 	modelIce_ = Model::CreateFromOBJ("enemy");
 
+	// 崩れるブロックモデル
+	modelCollapse_ = Model::CreateFromOBJ("enemy");
+
 	// デバッグカメラの生成
 	debugCamera_ = new DebugCamera(WinApp::kWindowWidth, WinApp::kWindowHeight);
 
@@ -76,6 +80,7 @@ void GameScene::Initialize() {
 	GenerateBlocks();
 	LadderBlocks();
 	IceBlocks();
+	CollapseBlocs();
 
 	kamaModel_ = Model::CreateFromOBJ("kama", "kama.png");
 	worldTransformKama_.Initialize();
@@ -147,9 +152,9 @@ void GameScene::Initialize() {
 	fade_->Initialize();
 	fade_->Start(Fade::Status::FadeIn, 1.0f);
 
-	//ImGui_ImplDX12_NewFrame();
-	//ImGui_ImplWin32_NewFrame();
-	//ImGui::NewFrame();
+	// ImGui_ImplDX12_NewFrame();
+	// ImGui_ImplWin32_NewFrame();
+	// ImGui::NewFrame();
 }
 
 // 02_12 10枚目 GameScene::Update関数で呼び出しておく
@@ -252,8 +257,7 @@ void GameScene::IceBlocks() {
 	}
 }
 
-void GameScene::CollapseBlocs()
-{
+void GameScene::CollapseBlocs() {
 	uint32_t numBlockVirtical = mapChipField_->GetNumBlockVirtical();
 	uint32_t numBlockHorizontal = mapChipField_->GetNumBlockHorizontal();
 
@@ -277,7 +281,6 @@ void GameScene::CollapseBlocs()
 		}
 	}
 }
-
 
 // ゲームシーン更新
 void GameScene::Update() {
@@ -357,7 +360,7 @@ void GameScene::Update() {
 			}
 		}
 
-		// の更新
+		// 氷の更新
 		for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformIce_) {
 			for (WorldTransform*& worldTransformIce : worldTransformBlockLine) {
 
@@ -369,7 +372,7 @@ void GameScene::Update() {
 			}
 		}
 
-		// の更新
+		// 崩れるブロックの更新
 		for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformCollapse_) {
 			for (WorldTransform*& worldTransformCollapse : worldTransformBlockLine) {
 
@@ -442,6 +445,17 @@ void GameScene::Update() {
 		}
 		// 氷の更新
 		for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformIce_) {
+			for (WorldTransform*& worldTransformBlock : worldTransformBlockLine) {
+
+				if (!worldTransformBlock)
+					continue;
+
+				// アフィン変換～DirectXに転送
+				WorldTransformUpdate(*worldTransformBlock);
+			}
+		}
+		//崩れるブロックの更新
+		for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformCollapse_) {
 			for (WorldTransform*& worldTransformBlock : worldTransformBlockLine) {
 
 				if (!worldTransformBlock)
@@ -631,6 +645,15 @@ void GameScene::Draw() {
 				continue;
 
 			modelIce_->Draw(*worldTransformBlock, camera_);
+		}
+	}
+	//崩れるブロック
+	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformCollapse_) {
+		for (WorldTransform*& worldTransformBlock : worldTransformBlockLine) {
+			if (!worldTransformBlock)
+				continue;
+
+			modelCollapse_->Draw(*worldTransformBlock, camera_);
 		}
 	}
 
