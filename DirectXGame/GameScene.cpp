@@ -77,6 +77,7 @@ void GameScene::Initialize() {
 	LadderBlocks();
 	IceBlocks();
 
+
 	kamaModel_ = Model::CreateFromOBJ("kama", "kama.png");
 	worldTransformKama_.Initialize();
 	worldTransformKama_.translation_ = {1000.0f, 0.0f, 500.0f}; // 位置
