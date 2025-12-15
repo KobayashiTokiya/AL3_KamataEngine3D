@@ -16,6 +16,21 @@ enum class MapChipType
 	kCollapse //崩れる床
 };
 
+enum class CollapseState 
+{
+	Appear,
+	WaitCollapse, // 乗られてから消えるまで3秒
+	Disappear     // 消えている10秒
+};
+
+struct CollapseChipData 
+{
+	CollapseState state = CollapseState::Appear;
+	float timer = 0.0f;
+	bool isTriggered = false;
+};
+
+
 struct MapChipData
 {
 	std::vector<std::vector<MapChipType>> data;
@@ -61,6 +76,10 @@ public:
 
 	Rect GetRectByIndex(uint32_t xIndex, uint32_t yIndex);
 
+	//崩れるブロック用
+	CollapseChipData& GetCollapseChip(uint32_t xIndex, uint32_t yIndex);
+	void UpdateCollapseChips();
+
 private:
 	// 1ブロックのサイズ
 	static inline const float kBlockWidth = 1.0f;
@@ -73,5 +92,6 @@ private:
 
 	MapChipData mapChipData_;
 	
-	
+	//崩れるブロック用
+	std::vector<std::vector<CollapseChipData>> collapseChipData_;
 };

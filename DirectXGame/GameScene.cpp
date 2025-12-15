@@ -60,8 +60,8 @@ void GameScene::Initialize() {
 	modelLadder_ = Model::CreateFromOBJ("enemy");
 
 	// 氷ブロックモデル
-	modelIce_ = Model::CreateFromOBJ("enemy");
-
+	modelIce_ = Model::CreateFromOBJ("ice");
+	
 	// 崩れるブロックモデル
 	modelCollapse_ = Model::CreateFromOBJ("enemy");
 
@@ -232,7 +232,6 @@ void GameScene::LadderBlocks() {
 }
 
 void GameScene::IceBlocks() {
-
 	uint32_t numBlockVirtical = mapChipField_->GetNumBlockVirtical();
 	uint32_t numBlockHorizontal = mapChipField_->GetNumBlockHorizontal();
 
@@ -295,6 +294,8 @@ void GameScene::Update() {
 	});
 	worldTransformKama_.translation_ = {1000.0f, 0.0f, 500.0f}; // 位置
 	ChangePhase();
+
+	mapChipField_->UpdateCollapseChips();
 
 	switch (phase_) {
 	case Phase::kFadeIn:
@@ -371,18 +372,22 @@ void GameScene::Update() {
 				WorldTransformUpdate(*worldTransformIce);
 			}
 		}
-
+		
 		// 崩れるブロックの更新
-		for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformCollapse_) {
-			for (WorldTransform*& worldTransformCollapse : worldTransformBlockLine) {
+		if (!player_->GetCollapse())
+		{
+			for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformCollapse_) {
+				for (WorldTransform*& worldTransformCollapse : worldTransformBlockLine) {
 
-				if (!worldTransformCollapse)
-					continue;
+					if (!worldTransformCollapse)
+						continue;
 
-				// アフィン変換～DirectXに転送
-				WorldTransformUpdate(*worldTransformCollapse);
+					// アフィン変換～DirectXに転送
+					WorldTransformUpdate(*worldTransformCollapse);
+				}
 			}
 		}
+		
 
 		break;
 	case Phase::kPlay:
@@ -454,15 +459,19 @@ void GameScene::Update() {
 				WorldTransformUpdate(*worldTransformBlock);
 			}
 		}
-		//崩れるブロックの更新
-		for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformCollapse_) {
-			for (WorldTransform*& worldTransformBlock : worldTransformBlockLine) {
 
-				if (!worldTransformBlock)
-					continue;
+		// 崩れるブロックの更新
+		if (!player_->GetCollapse())
+		{
+			for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformCollapse_) {
+				for (WorldTransform*& worldTransformBlock : worldTransformBlockLine) {
 
-				// アフィン変換～DirectXに転送
-				WorldTransformUpdate(*worldTransformBlock);
+					if (!worldTransformBlock)
+						continue;
+
+					// アフィン変換～DirectXに転送
+					WorldTransformUpdate(*worldTransformBlock);
+				}
 			}
 		}
 
@@ -647,13 +656,17 @@ void GameScene::Draw() {
 			modelIce_->Draw(*worldTransformBlock, camera_);
 		}
 	}
-	//崩れるブロック
-	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformCollapse_) {
-		for (WorldTransform*& worldTransformBlock : worldTransformBlockLine) {
-			if (!worldTransformBlock)
-				continue;
+	
+	if (!player_->GetCollapse()) 
+	{
+		// 崩れるブロック
+		for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformCollapse_) {
+			for (WorldTransform*& worldTransformBlock : worldTransformBlockLine) {
+				if (!worldTransformBlock)
+					continue;
 
-			modelCollapse_->Draw(*worldTransformBlock, camera_);
+				modelCollapse_->Draw(*worldTransformBlock, camera_);
+			}
 		}
 	}
 

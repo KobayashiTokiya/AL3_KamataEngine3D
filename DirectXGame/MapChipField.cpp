@@ -22,6 +22,13 @@ void MapChipField::ResetMapChipData() {
 	for (std::vector<MapChipType>& mapChipDataLine : mapChipData_.data) {
 		mapChipDataLine.resize(kNumBlockHorizontal);
 	}
+
+	// マップチップデータをリセット
+	collapseChipData_.clear();
+	collapseChipData_.resize(kNumBlockVirtical);
+	for (std::vector<CollapseChipData>& mapChipDataLine : collapseChipData_) {
+		mapChipDataLine.resize(kNumBlockHorizontal);
+	}
 };
 
 void MapChipField::LoadMapChipCsv(const std::string& filePath) {
@@ -95,4 +102,45 @@ MapChipField::Rect MapChipField::GetRectByIndex(uint32_t xIndex, uint32_t yIndex
 	rect.top = center.y + kBlockWidth / 2.0f;
 
 	return rect;
+}
+
+CollapseChipData& MapChipField::GetCollapseChip(uint32_t xIndex, uint32_t yIndex) {
+	assert(xIndex < kNumBlockHorizontal);
+	assert(yIndex < kNumBlockVirtical);
+	return collapseChipData_[yIndex][xIndex];
+};
+
+void MapChipField::UpdateCollapseChips() {
+	for (uint32_t y = 0; y < kNumBlockVirtical; ++y) {
+		for (uint32_t x = 0; x < kNumBlockHorizontal; ++x) {
+			if (mapChipData_.data[y][x] != MapChipType::kCollapse) {
+				continue;
+			}
+
+			auto& chip = collapseChipData_[y][x];
+
+			switch (chip.state) {
+			case CollapseState::Appear:
+				break;
+
+			case CollapseState::WaitCollapse:
+				chip.timer--;
+				if (chip.timer<=0.0f)
+				{
+					chip.state = CollapseState::Disappear;
+					chip.timer = 600.0f;
+				}
+				break;
+			case CollapseState::Disappear:
+				chip.timer--;
+				if (chip.timer<=0.0f)
+				{
+					chip.state = CollapseState::Appear;
+				}
+				break;
+			}
+
+		}
+	}
+
 }

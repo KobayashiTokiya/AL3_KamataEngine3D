@@ -83,7 +83,6 @@ private:
 	//崩れるブロック
 	Model* modelCollapse_ = nullptr;
 	std::vector<std::vector<WorldTransform*>> worldTransformCollapse_;
-	
 
 	// デバックカメラ有効
 	bool isDebugCameraActive_ = false;
