@@ -281,9 +281,29 @@ void GameScene::CollapseBlocs() {
 	}
 }
 
+void GameScene::UpdateCollapseBlocks()
+{
+	for (uint32_t y = 0; y < worldTransformCollapse_.size(); ++y) {
+		for (uint32_t x = 0; x < worldTransformCollapse_[y].size(); ++x) {
+
+			WorldTransform* wt = worldTransformCollapse_[y][x];
+			if (!wt)
+				continue;
+
+			auto& chip = mapChipField_->GetCollapseChip(x, y);
+			if (chip.state == CollapseState::Disappear)
+				continue;
+
+			WorldTransformUpdate(*wt);
+		}
+	}
+}
+
 // ゲームシーン更新
 void GameScene::Update() {
 
+	mapChipField_->Update();
+	
 	// 02_15 7枚目 デスフラグの立った敵を削除
 	enemies_.remove_if([](Enemy* enemy) {
 		if (enemy->IsDead()) {
@@ -295,7 +315,6 @@ void GameScene::Update() {
 	worldTransformKama_.translation_ = {1000.0f, 0.0f, 500.0f}; // 位置
 	ChangePhase();
 
-	mapChipField_->UpdateCollapseChips();
 
 	switch (phase_) {
 	case Phase::kFadeIn:
@@ -374,20 +393,7 @@ void GameScene::Update() {
 		}
 		
 		// 崩れるブロックの更新
-		if (!player_->GetCollapse())
-		{
-			for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformCollapse_) {
-				for (WorldTransform*& worldTransformCollapse : worldTransformBlockLine) {
-
-					if (!worldTransformCollapse)
-						continue;
-
-					// アフィン変換～DirectXに転送
-					WorldTransformUpdate(*worldTransformCollapse);
-				}
-			}
-		}
-		
+		UpdateCollapseBlocks();
 
 		break;
 	case Phase::kPlay:
@@ -461,20 +467,7 @@ void GameScene::Update() {
 		}
 
 		// 崩れるブロックの更新
-		if (!player_->GetCollapse())
-		{
-			for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformCollapse_) {
-				for (WorldTransform*& worldTransformBlock : worldTransformBlockLine) {
-
-					if (!worldTransformBlock)
-						continue;
-
-					// アフィン変換～DirectXに転送
-					WorldTransformUpdate(*worldTransformBlock);
-				}
-			}
-		}
-
+		UpdateCollapseBlocks();
 		CheckAllCollisions();
 		break;
 	case Phase::kDeath:
@@ -657,16 +650,23 @@ void GameScene::Draw() {
 		}
 	}
 	
-	if (!player_->GetCollapse()) 
-	{
-		// 崩れるブロック
-		for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformCollapse_) {
-			for (WorldTransform*& worldTransformBlock : worldTransformBlockLine) {
-				if (!worldTransformBlock)
-					continue;
+	// 崩れるブロックの描画
+	for (uint32_t y = 0; y < worldTransformCollapse_.size(); ++y) {
+		for (uint32_t x = 0; x < worldTransformCollapse_[y].size(); ++x) {
 
-				modelCollapse_->Draw(*worldTransformBlock, camera_);
+			WorldTransform* wt = worldTransformCollapse_[y][x];
+			if (!wt) {
+				continue;
 			}
+
+			auto& chip = mapChipField_->GetCollapseChip(x, y);
+
+			// 消えている間は描画しない
+			if (chip.state == CollapseState::Disappear) {
+				continue;
+			}
+
+			modelCollapse_->Draw(*wt, camera_);
 		}
 	}
 

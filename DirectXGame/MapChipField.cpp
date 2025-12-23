@@ -15,6 +15,11 @@ std::map<std::string, MapChipType> mapChipTable = {
 };
 }
 
+void MapChipField::Update() 
+{
+	UpdateCollapseChips(); 
+}
+
 void MapChipField::ResetMapChipData() {
 	// マップチップデータをリセット
 	mapChipData_.data.clear();
@@ -110,6 +115,15 @@ CollapseChipData& MapChipField::GetCollapseChip(uint32_t xIndex, uint32_t yIndex
 	return collapseChipData_[yIndex][xIndex];
 };
 
+void MapChipField::StartCollapse(uint32_t x, uint32_t y) {
+	auto& chip = collapseChipData_[y][x];
+
+	if (chip.state == CollapseState::Appear) {
+		chip.state = CollapseState::WaitCollapse;
+		chip.timer = 60.0f; // 1秒（60FPS想定）
+	}
+}
+
 void MapChipField::UpdateCollapseChips() {
 	for (uint32_t y = 0; y < kNumBlockVirtical; ++y) {
 		for (uint32_t x = 0; x < kNumBlockHorizontal; ++x) {
@@ -139,8 +153,6 @@ void MapChipField::UpdateCollapseChips() {
 				}
 				break;
 			}
-
 		}
 	}
-
 }

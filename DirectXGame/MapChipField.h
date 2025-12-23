@@ -60,6 +60,7 @@ public:
 		float top;
 	
 	};
+	void Update();
 
 	void ResetMapChipData();
 
@@ -79,6 +80,7 @@ public:
 	//崩れるブロック用
 	CollapseChipData& GetCollapseChip(uint32_t xIndex, uint32_t yIndex);
 	void UpdateCollapseChips();
+	void StartCollapse(uint32_t x, uint32_t y);
 
 private:
 	// 1ブロックのサイズ

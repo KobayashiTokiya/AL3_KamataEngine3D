@@ -35,6 +35,7 @@ public:
 
 	//崩れるブロック
 	void CollapseBlocs();
+	void UpdateCollapseBlocks();
 
 	// 02_12
 	void ChangePhase();
@@ -42,6 +43,7 @@ public:
 	bool IsFinished() const { return finished_; }
 	bool IsGameClear() const { return isGameClear_;}
 	bool IsPlayerDead() const { return isPlayerDead_; }
+
 
 private:
 	// 02_12 ゲームのフェーズ(型)
@@ -83,6 +85,7 @@ private:
 	//崩れるブロック
 	Model* modelCollapse_ = nullptr;
 	std::vector<std::vector<WorldTransform*>> worldTransformCollapse_;
+
 
 	// デバックカメラ有効
 	bool isDebugCameraActive_ = false;

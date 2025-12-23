@@ -105,7 +105,7 @@ public:
 	bool GetIce() const { return onIce_; }
 	bool GetLadder() const { return onLadder_; }
 	bool GetCollapse() const { return onCollapse_; }
-	float GetCollapseTime() const { return collapseTime; }
+	//float GetCollapseTime() const { return collapseTime; }
 
 private:
 	// ワールド変換データ
@@ -189,7 +189,7 @@ private:
 
 	//崩れるブロック判定
 	bool onCollapse_ = false;
-	float collapseTime = 30.0f;
+	//float collapseTime = 30.0f;
 	bool collapseWasLanding_ = false;
 
 	// 02_08スライド16枚目 着地時の速度減衰率
