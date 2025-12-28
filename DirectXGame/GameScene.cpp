@@ -13,6 +13,7 @@ GameScene::~GameScene() {
 	delete modelBlock_;
 	delete modelLadder_;
 	delete modelIce_;
+	delete modelCollapse_;
 
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
@@ -59,7 +60,10 @@ void GameScene::Initialize() {
 	modelLadder_ = Model::CreateFromOBJ("enemy");
 
 	// 氷ブロックモデル
-	modelIce_ = Model::CreateFromOBJ("enemy");
+	modelIce_ = Model::CreateFromOBJ("ice");
+	
+	// 崩れるブロックモデル
+	modelCollapse_ = Model::CreateFromOBJ("enemy");
 
 	// デバッグカメラの生成
 	debugCamera_ = new DebugCamera(WinApp::kWindowWidth, WinApp::kWindowHeight);
@@ -76,6 +80,7 @@ void GameScene::Initialize() {
 	GenerateBlocks();
 	LadderBlocks();
 	IceBlocks();
+	CollapseBlocs();
 
 
 	kamaModel_ = Model::CreateFromOBJ("kama", "kama.png");
@@ -148,9 +153,9 @@ void GameScene::Initialize() {
 	fade_->Initialize();
 	fade_->Start(Fade::Status::FadeIn, 1.0f);
 
-	//ImGui_ImplDX12_NewFrame();
-	//ImGui_ImplWin32_NewFrame();
-	//ImGui::NewFrame();
+	// ImGui_ImplDX12_NewFrame();
+	// ImGui_ImplWin32_NewFrame();
+	// ImGui::NewFrame();
 }
 
 // 02_12 10枚目 GameScene::Update関数で呼び出しておく
@@ -228,7 +233,6 @@ void GameScene::LadderBlocks() {
 }
 
 void GameScene::IceBlocks() {
-
 	uint32_t numBlockVirtical = mapChipField_->GetNumBlockVirtical();
 	uint32_t numBlockHorizontal = mapChipField_->GetNumBlockHorizontal();
 
@@ -253,9 +257,63 @@ void GameScene::IceBlocks() {
 	}
 }
 
+void GameScene::CollapseBlocs() {
+	uint32_t numBlockVirtical = mapChipField_->GetNumBlockVirtical();
+	uint32_t numBlockHorizontal = mapChipField_->GetNumBlockHorizontal();
+
+	worldTransformCollapse_.resize(numBlockVirtical);
+	for (uint32_t i = 0; i < numBlockVirtical; ++i) {
+		worldTransformCollapse_[i].resize(numBlockHorizontal);
+	}
+
+	// ブロックの生成
+	for (uint32_t i = 0; i < numBlockVirtical; ++i) {
+
+		for (uint32_t j = 0; j < numBlockHorizontal; ++j) {
+
+			// ブロックを変える
+			if (mapChipField_->GetMapChipTypeByIndex(j, i) == MapChipType::kCollapse) {
+				WorldTransform* worldTransform = new WorldTransform();
+				worldTransform->Initialize();
+				worldTransformCollapse_[i][j] = worldTransform;
+				worldTransformCollapse_[i][j]->translation_ = mapChipField_->GetMapChipPositionByIndex(j, i);
+			}
+		}
+	}
+}
+
+void GameScene::UpdateCollapseBlocks() {
+	for (uint32_t y = 0; y < worldTransformCollapse_.size(); ++y) {
+		for (uint32_t x = 0; x < worldTransformCollapse_[y].size(); ++x) {
+
+			WorldTransform* wt = worldTransformCollapse_[y][x];
+			if (!wt) {
+				continue; // ← return はダメ
+			}
+
+			//崩れる床の状態を取得
+			auto& chip = mapChipField_->GetCollapseChip(x, y);
+
+			Vector3 basePos = mapChipField_->GetMapChipPositionByIndex(x, y);
+
+			//シェイクは WaitCollapse 中だけ
+			if (chip.state == CollapseState::WaitCollapse) {
+				float shake = sinf(chip.shakeTime * 1.0f) * 0.1f;
+				wt->translation_ = basePos + Vector3(shake, 0, 0);
+			} else {
+				wt->translation_ = basePos;
+			}
+
+			WorldTransformUpdate(*wt);
+		}
+	}
+}
+
 // ゲームシーン更新
 void GameScene::Update() {
 
+	mapChipField_->Update();
+	
 	// 02_15 7枚目 デスフラグの立った敵を削除
 	enemies_.remove_if([](Enemy* enemy) {
 		if (enemy->IsDead()) {
@@ -266,6 +324,7 @@ void GameScene::Update() {
 	});
 	worldTransformKama_.translation_ = {1000.0f, 0.0f, 500.0f}; // 位置
 	ChangePhase();
+
 
 	switch (phase_) {
 	case Phase::kFadeIn:
@@ -331,7 +390,7 @@ void GameScene::Update() {
 			}
 		}
 
-		// の更新
+		// 氷の更新
 		for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformIce_) {
 			for (WorldTransform*& worldTransformIce : worldTransformBlockLine) {
 
@@ -342,7 +401,6 @@ void GameScene::Update() {
 				WorldTransformUpdate(*worldTransformIce);
 			}
 		}
-
 		break;
 	case Phase::kPlay:
 		skydome_->Update();
@@ -414,6 +472,8 @@ void GameScene::Update() {
 			}
 		}
 
+		// 崩れるブロックの更新
+		UpdateCollapseBlocks();
 		CheckAllCollisions();
 		break;
 	case Phase::kDeath:
@@ -593,6 +653,26 @@ void GameScene::Draw() {
 				continue;
 
 			modelIce_->Draw(*worldTransformBlock, camera_);
+		}
+	}
+	
+	// 崩れるブロックの描画
+	for (uint32_t y = 0; y < worldTransformCollapse_.size(); ++y) {
+		for (uint32_t x = 0; x < worldTransformCollapse_[y].size(); ++x) {
+
+			WorldTransform* wt = worldTransformCollapse_[y][x];
+			if (!wt) {
+				continue;
+			}
+
+			auto& chip = mapChipField_->GetCollapseChip(x, y);
+
+			// 消えている間は描画しない
+			if (chip.state == CollapseState::Disappear) {
+				continue;
+			}
+
+			modelCollapse_->Draw(*wt, camera_);
 		}
 	}
 

@@ -33,12 +33,17 @@ public:
 	//氷ブロック
 	void IceBlocks();
 
+	//崩れるブロック
+	void CollapseBlocs();
+	void UpdateCollapseBlocks();
+
 	// 02_12
 	void ChangePhase();
 
 	bool IsFinished() const { return finished_; }
 	bool IsGameClear() const { return isGameClear_;}
 	bool IsPlayerDead() const { return isPlayerDead_; }
+
 
 private:
 	// 02_12 ゲームのフェーズ(型)
@@ -65,12 +70,11 @@ private:
 	// プレイヤー
 	Player* player_ = nullptr;
 	KamataEngine::Model* playerModel_ = nullptr;
+
 	// ブロックモデル
 	KamataEngine::Model* modelBlock_ = nullptr;
 	std::vector<std::vector<KamataEngine::WorldTransform*>> worldTransformBlocks_;
-
-	//梯子関連
-	//モデル
+	//梯子
 	Model* modelLadder_ = nullptr;
 	std::vector<std::vector<WorldTransform*>> worldTransformLadders_;
 
@@ -78,6 +82,9 @@ private:
 	Model* modelIce_ = nullptr;
 	std::vector<std::vector<WorldTransform*>> worldTransformIce_;
 
+	//崩れるブロック
+	Model* modelCollapse_ = nullptr;
+	std::vector<std::vector<WorldTransform*>> worldTransformCollapse_;
 
 
 	// デバックカメラ有効

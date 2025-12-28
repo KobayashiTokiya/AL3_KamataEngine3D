@@ -261,7 +261,7 @@ void Player::Initialize(Model* model, Model* modelAttack, Camera* camera, const 
 	camera_ = camera;
 }
 
-//氷ブロック内のプレイヤーの動き
+// 氷ブロック内のプレイヤーの動き
 void Player::IceUpdate() {
 	// 左右加速
 	Vector3 acceleration = {};
@@ -303,10 +303,9 @@ void Player::IceUpdate() {
 	}
 }
 
-//普通ブロック内のプレイヤーの動き
+// 普通ブロック内のプレイヤーの動き
 void Player::normalAction() {
-	if (!onIce_)
-	{
+	if (!onIce_) {
 		velocity_.x = 0.0f;
 	}
 
@@ -333,11 +332,9 @@ void Player::normalAction() {
 void Player::InputMove() {
 	if (onIce_) {
 		IceUpdate();
-	}	
-	else if ((onGround_ || onLadder_)) {
+	} else if ((onGround_ || onLadder_)) {
 		normalAction();
-	}
-	else {
+	} else {
 		normalAction();
 	}
 
@@ -397,7 +394,7 @@ void Player::CheckMapCollisionUp(CollisionMapInfo& info) {
 	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kLeftTop]);
 	mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
 
-	if (mapChipType == MapChipType::kBlock) {
+	if (mapChipType == MapChipType::kBlock || mapChipType == MapChipType::kCollapse) {
 		hit = true;
 	}
 
@@ -413,7 +410,7 @@ void Player::CheckMapCollisionUp(CollisionMapInfo& info) {
 	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kRightTop]);
 	mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
 
-	if (mapChipType == MapChipType::kBlock) {
+	if (mapChipType == MapChipType::kBlock || mapChipType == MapChipType::kCollapse) {
 		hit = true;
 	}
 	if (mapChipType == MapChipType::kLadder) {
@@ -486,12 +483,24 @@ void Player::CheckMapCollisionDown(CollisionMapInfo& info) {
 	bool ladder = false;
 	bool ice = false;
 
+	bool isSolid = false;
+
 	// 左下の判定
 	MapChipField::IndexSet indexSet;
 	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kRightBottom]);
 	mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
 
 	if (mapChipType == MapChipType::kBlock) {
+		isSolid = true;
+	} else if (mapChipType == MapChipType::kCollapse) {
+		auto& chip = mapChipField_->GetCollapseChip(indexSet.xIndex, indexSet.yIndex);
+
+		if (chip.state != CollapseState::Disappear) {
+			isSolid = true;
+		}
+	}
+
+	if (isSolid) {
 		hit = true;
 	}
 	if (mapChipType == MapChipType::kLadder) {
@@ -501,11 +510,23 @@ void Player::CheckMapCollisionDown(CollisionMapInfo& info) {
 		ice = true;
 	}
 
+	isSolid = false;
+
 	// 右下点の判定
 	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kLeftBottom]);
 	mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
 
 	if (mapChipType == MapChipType::kBlock) {
+		isSolid = true;
+	} else if (mapChipType == MapChipType::kCollapse) {
+		auto& chip = mapChipField_->GetCollapseChip(indexSet.xIndex, indexSet.yIndex);
+
+		if (chip.state != CollapseState::Disappear) {
+			isSolid = true;
+		}
+	}
+
+	if (isSolid) {
 		hit = true;
 	}
 	if (mapChipType == MapChipType::kLadder) {
@@ -518,13 +539,36 @@ void Player::CheckMapCollisionDown(CollisionMapInfo& info) {
 	// 02_08スライド11枚目 ブロックにヒット？
 	if (hit) {
 		onIce_ = false;
-		// めり込みを排除する方向に移動量を設定する
+
 		indexSet = mapChipField_->GetMapChipIndexSetByPosition(worldTransform_.translation_ + info.move + Vector3(0, -kHeight / 2.0f, 0));
-		// めり込み先ブロックの範囲矩形
+
 		MapChipField::Rect rect = mapChipField_->GetRectByIndex(indexSet.xIndex, indexSet.yIndex);
+
 		info.move.y = std::min(0.0f, rect.top - worldTransform_.translation_.y + (kHeight / 2.0f + kBlank));
-		// 地面に当たったことを記録する
+
 		info.landing = true;
+	} else {
+		info.landing = false;
+	}
+
+	// 崩れるブロック
+	if (info.landing) {
+
+		Vector3 footPos = worldTransform_.translation_ + info.move + Vector3(0, -kHeight / 2.0f, 0);
+
+		auto index = mapChipField_->GetMapChipIndexSetByPosition(footPos);
+
+		if (mapChipField_->GetMapChipTypeByIndex(index.xIndex, index.yIndex) == MapChipType::kCollapse) {
+
+			auto& chip = mapChipField_->GetCollapseChip(index.xIndex, index.yIndex);
+
+			if (chip.state == CollapseState::Appear) {
+				chip.state = CollapseState::WaitCollapse;
+				chip.timer = 180.0f;
+				//演出
+				chip.shakeTime = 0.0f;
+			}
+		}
 	}
 
 	// 梯子中の処理
@@ -533,9 +577,7 @@ void Player::CheckMapCollisionDown(CollisionMapInfo& info) {
 		velocity_.y = 0.0f; // ← 重力無効化
 
 		BehaviorClimbUpdate();
-	}
-	else if (!ladder)
-	{
+	} else if (!ladder) {
 		onLadder_ = false;
 	}
 
@@ -549,10 +591,7 @@ void Player::CheckMapCollisionDown(CollisionMapInfo& info) {
 		info.move.y = std::min(0.0f, rect.top - worldTransform_.translation_.y + (kHeight / 2.0f + kBlank));
 		// 地面に当たったことを記録する
 		info.landing = true;
-	} 
-	// else {
-	//	onIce_ = false;
-	// }
+	}
 }
 
 // 02_08スライド14枚目 設置状態の切り替え処理
@@ -570,7 +609,8 @@ void Player::UpdateOnGround(const CollisionMapInfo& info) {
 			std::array<Vector3, kNumCorner> positionsNew;
 
 			for (uint32_t i = 0; i < positionsNew.size(); ++i) {
-				positionsNew[i] = CornerPosition(worldTransform_.translation_ + info.move, static_cast<Corner>(i));
+				// positionsNew[i] = CornerPosition(worldTransform_.translation_ + info.move, static_cast<Corner>(i));
+				positionsNew[i] = CornerPosition(worldTransform_.translation_, static_cast<Corner>(i));
 			}
 
 			bool hit = false;
@@ -581,15 +621,29 @@ void Player::UpdateOnGround(const CollisionMapInfo& info) {
 			MapChipField::IndexSet indexSet;
 			indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kLeftBottom] + Vector3(0, -kGroundSearchHeight, 0));
 			mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
-			if (mapChipType == MapChipType::kBlock) {
+			if (mapChipType == MapChipType::kBlock || mapChipType == MapChipType::kCollapse) {
+
 				hit = true;
+
+				if (mapChipType == MapChipType::kCollapse) {
+					onCollapse_ = true;
+
+					mapChipField_->StartCollapse(indexSet.xIndex, indexSet.yIndex);
+				}
 			}
 
 			// 右下点の判定
 			indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kRightBottom] + Vector3(0, -kGroundSearchHeight, 0));
 			mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
-			if (mapChipType == MapChipType::kBlock) {
+			if (mapChipType == MapChipType::kBlock || mapChipType == MapChipType::kCollapse) {
+
 				hit = true;
+
+				if (mapChipType == MapChipType::kCollapse) {
+					onCollapse_ = true;
+
+					mapChipField_->StartCollapse(indexSet.xIndex, indexSet.yIndex);
+				}
 			}
 
 			// 落下開始
@@ -610,62 +664,6 @@ void Player::UpdateOnGround(const CollisionMapInfo& info) {
 		}
 	}
 }
-
-/* void Player::UpdateOnIce(const CollisionMapInfo& info) {
-
-	if (onIce_) {
-		// 02_08スライド18枚目 ジャンプ開始
-		if (velocity_.y > 0.0f) {
-			onIce_ = false;
-		} else {
-			// 落下判定
-			// 落下なら空中状態に切り替え
-
-			// 02_08スライド19枚目(このelseブロック全部)
-			std::array<Vector3, kNumCorner> positionsNew;
-
-			for (uint32_t i = 0; i < positionsNew.size(); ++i) {
-				positionsNew[i] = CornerPosition(worldTransform_.translation_ + info.move, static_cast<Corner>(i));
-			}
-
-			bool hit = false;
-
-			MapChipType mapChipType;
-
-			// 左下点の判定
-			MapChipField::IndexSet indexSet;
-			indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kLeftBottom] + Vector3(0, -kGroundSearchHeight, 0));
-			mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
-			if (mapChipType == MapChipType::kIceBlock) {
-				hit = true;
-			}
-
-			// 右下点の判定
-			indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kRightBottom] + Vector3(0, -kGroundSearchHeight, 0));
-			mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
-			if (mapChipType == MapChipType::kIceBlock) {
-				hit = true;
-			}
-
-			// 落下開始
-			if (!hit) {
-				//				DebugText::GetInstance()->ConsolePrintf("jump");
-				onIce_ = false;
-			}
-		}
-	} else {
-		// 02_08スライド16枚目 地面に接触している場合の処理
-		if (info.landing) {
-			// 着地状態に切り替える（落下を止める）
-			onIce_ = true;
-			// 着地時にX速度を減衰
-			velocity_.x *= (1.0f - kAttenuationLanding);
-			// Y速度をゼロに
-			velocity_.y = 0.0f;
-		}
-	}
-}
-*/
 
 // 02_08スライド27枚目 壁接地中の処理
 void Player::UpdateOnWall(const CollisionMapInfo& info) {
@@ -700,8 +698,7 @@ void Player::CheckMapCollisionRight(CollisionMapInfo& info) {
 	MapChipField::IndexSet indexSet;
 	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kRightTop]);
 	mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
-
-	if (mapChipType == MapChipType::kBlock) {
+	if (mapChipType == MapChipType::kBlock || mapChipType == MapChipType::kCollapse) {
 		hit = true;
 	}
 	if (mapChipType == MapChipType::kLadder) {
@@ -715,7 +712,7 @@ void Player::CheckMapCollisionRight(CollisionMapInfo& info) {
 	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kRightBottom]);
 	mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
 
-	if (mapChipType == MapChipType::kBlock) {
+	if (mapChipType == MapChipType::kBlock || mapChipType == MapChipType::kCollapse) {
 		hit = true;
 	}
 	if (mapChipType == MapChipType::kLadder) {
@@ -723,7 +720,7 @@ void Player::CheckMapCollisionRight(CollisionMapInfo& info) {
 	}
 	if (mapChipType == MapChipType::kIceBlock) {
 		ice = true;
-	} 
+	}
 
 	// ブロックにヒット？
 	if (hit) {
@@ -740,7 +737,7 @@ void Player::CheckMapCollisionRight(CollisionMapInfo& info) {
 		}
 	}
 
-// 梯子中の処理
+	// 梯子中の処理
 	if (ladder) {
 		onLadder_ = true;   // ← フラグON
 		velocity_.y = 0.0f; // ← 重力無効化
@@ -790,7 +787,7 @@ void Player::CheckMapCollisionLeft(CollisionMapInfo& info) {
 	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kLeftTop]);
 	mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
 
-	if (mapChipType == MapChipType::kBlock) {
+	if (mapChipType == MapChipType::kBlock || mapChipType == MapChipType::kCollapse) {
 		hit = true;
 	}
 	if (mapChipType == MapChipType::kLadder) {
@@ -804,16 +801,11 @@ void Player::CheckMapCollisionLeft(CollisionMapInfo& info) {
 	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kLeftBottom]);
 	mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
 
-	if (mapChipType == MapChipType::kBlock) {
+	if (mapChipType == MapChipType::kBlock || mapChipType == MapChipType::kCollapse) {
 		hit = true;
 	}
 	if (mapChipType == MapChipType::kLadder) {
 		ladder = true;
-		// if (Input::GetInstance()->PushKey(DIK_RIGHT)) {
-		//	worldTransform_.translation_.y += ladderSpeed;
-		// } else if (Input::GetInstance()->PushKey(DIK_LEFT)) {
-		//	worldTransform_.translation_.y -= ladderSpeed;
-		// }
 	}
 	if (mapChipType == MapChipType::kIceBlock) {
 		ice = true;
@@ -841,12 +833,11 @@ void Player::CheckMapCollisionLeft(CollisionMapInfo& info) {
 		velocity_.y = 0.0f; // ← 重力無効化
 
 		BehaviorClimbUpdate();
-	} 
-	else if (!ladder) {
+	} else if (!ladder) {
 		onLadder_ = false;
 	}
 
-	//氷ブロック
+	// 氷ブロック
 	if (ice) {
 		onIce_ = true;
 		// 現在座標が壁の外か判定
@@ -860,7 +851,7 @@ void Player::CheckMapCollisionLeft(CollisionMapInfo& info) {
 			info.move.x = std::max(0.0f, rect.right - worldTransform_.translation_.x - (kWidth / 2.0f + kBlank));
 			info.hitWall = true;
 		}
-	} 
+	}
 }
 
 // 02_07 スライド17枚目

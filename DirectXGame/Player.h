@@ -101,9 +101,11 @@ public:
 	//　普通のブロックに乗った時の更新
 	void normalAction();
 
-	 bool GetGround() const { return onGround_; }
+	bool GetGround() const { return onGround_; }
 	bool GetIce() const { return onIce_; }
-	 bool GetLadder() const { return onLadder_; }
+	bool GetLadder() const { return onLadder_; }
+	bool GetCollapse() const { return onCollapse_; }
+	//float GetCollapseTime() const { return collapseTime; }
 
 private:
 	// ワールド変換データ
@@ -182,9 +184,13 @@ private:
 	//梯子に乗っているか
 	bool onLadder_ = false;
 
-	//氷ブロック関連
+	//氷ブロック判定
 	bool onIce_ = false;
 
+	//崩れるブロック判定
+	bool onCollapse_ = false;
+	//float collapseTime = 30.0f;
+	bool collapseWasLanding_ = false;
 
 	// 02_08スライド16枚目 着地時の速度減衰率
 	static inline const float kAttenuationLanding = 0.03f;

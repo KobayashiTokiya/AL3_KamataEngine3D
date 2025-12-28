@@ -10,8 +10,14 @@ std::map<std::string, MapChipType> mapChipTable = {
     {"0", MapChipType::kBlank   },
     {"1", MapChipType::kBlock   },
     {"2", MapChipType::kLadder  },
-    {"3", MapChipType::kIceBlock}
+    {"3", MapChipType::kIceBlock},
+    {"4", MapChipType::kCollapse}
 };
+}
+
+void MapChipField::Update() 
+{
+	UpdateCollapseChips(); 
 }
 
 void MapChipField::ResetMapChipData() {
@@ -20,6 +26,21 @@ void MapChipField::ResetMapChipData() {
 	mapChipData_.data.resize(kNumBlockVirtical);
 	for (std::vector<MapChipType>& mapChipDataLine : mapChipData_.data) {
 		mapChipDataLine.resize(kNumBlockHorizontal);
+	}
+
+	// マップチップデータをリセット
+	collapseChipData_.clear();
+	collapseChipData_.resize(kNumBlockVirtical);
+
+	for (uint32_t y = 0; y < kNumBlockVirtical; ++y) {
+		collapseChipData_[y].resize(kNumBlockHorizontal);
+
+		for (uint32_t x = 0; x < kNumBlockHorizontal; ++x) {
+			auto& chip = collapseChipData_[y][x];
+			chip.state = CollapseState::Appear; // ★ 最初は表示
+			chip.timer = 0.0f;
+			chip.shakeTime = 0.0f;
+		}
 	}
 };
 
@@ -72,7 +93,18 @@ MapChipType MapChipField::GetMapChipTypeByIndex(uint32_t xIndex, uint32_t yIndex
 		return MapChipType::kBlank;
 	}
 
-	return mapChipData_.data[yIndex][xIndex];
+	 MapChipType type = mapChipData_.data[yIndex][xIndex];
+
+	//崩れる床は state を見る
+	if (type == MapChipType::kCollapse) {
+		const auto& chip = collapseChipData_[yIndex][xIndex];
+
+		if (chip.state == CollapseState::Disappear) {
+			return MapChipType::kBlank;//完全に空気
+		}
+	}
+
+	return type;
 }
 
 MapChipField::IndexSet MapChipField::GetMapChipIndexSetByPosition(const Vector3& position) {
@@ -94,4 +126,54 @@ MapChipField::Rect MapChipField::GetRectByIndex(uint32_t xIndex, uint32_t yIndex
 	rect.top = center.y + kBlockWidth / 2.0f;
 
 	return rect;
+}
+
+CollapseChipData& MapChipField::GetCollapseChip(uint32_t xIndex, uint32_t yIndex) {
+	assert(xIndex < kNumBlockHorizontal);
+	assert(yIndex < kNumBlockVirtical);
+	return collapseChipData_[yIndex][xIndex];
+};
+
+void MapChipField::StartCollapse(uint32_t x, uint32_t y) {
+	auto& chip = collapseChipData_[y][x];
+
+	if (chip.state == CollapseState::Appear) {
+		chip.state = CollapseState::WaitCollapse;
+		chip.timer = 60.0f; // 1秒（60FPS想定）
+	}
+}
+
+void MapChipField::UpdateCollapseChips() {
+	for (uint32_t y = 0; y < kNumBlockVirtical; ++y) {
+		for (uint32_t x = 0; x < kNumBlockHorizontal; ++x) {
+			if (mapChipData_.data[y][x] != MapChipType::kCollapse) {
+				continue;
+			}
+
+			auto& chip = collapseChipData_[y][x];
+
+			switch (chip.state) {
+			case CollapseState::Appear:
+				break;
+
+			case CollapseState::WaitCollapse:
+				chip.timer--;
+				chip.shakeTime += 1.0f;
+
+				if (chip.timer<=0.0f)
+				{
+					chip.state = CollapseState::Disappear;
+					chip.timer = 600.0f;
+				}
+				break;
+			case CollapseState::Disappear:
+				chip.timer--;
+				if (chip.timer<=0.0f)
+				{
+					chip.state = CollapseState::Appear;
+				}
+				break;
+			}
+		}
+	}
 }
