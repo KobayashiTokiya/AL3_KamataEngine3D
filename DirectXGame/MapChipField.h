@@ -26,8 +26,10 @@ enum class CollapseState
 struct CollapseChipData 
 {
 	CollapseState state = CollapseState::Appear;
-	float timer = 0.0f;
+	float timer = 3.0f;
 	bool isTriggered = false;
+
+	float shakeTime = 0.0f;
 };
 
 

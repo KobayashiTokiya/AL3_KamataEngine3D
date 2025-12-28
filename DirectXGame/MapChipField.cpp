@@ -31,8 +31,16 @@ void MapChipField::ResetMapChipData() {
 	// マップチップデータをリセット
 	collapseChipData_.clear();
 	collapseChipData_.resize(kNumBlockVirtical);
-	for (std::vector<CollapseChipData>& mapChipDataLine : collapseChipData_) {
-		mapChipDataLine.resize(kNumBlockHorizontal);
+
+	for (uint32_t y = 0; y < kNumBlockVirtical; ++y) {
+		collapseChipData_[y].resize(kNumBlockHorizontal);
+
+		for (uint32_t x = 0; x < kNumBlockHorizontal; ++x) {
+			auto& chip = collapseChipData_[y][x];
+			chip.state = CollapseState::Appear; // ★ 最初は表示
+			chip.timer = 0.0f;
+			chip.shakeTime = 0.0f;
+		}
 	}
 };
 
@@ -85,7 +93,18 @@ MapChipType MapChipField::GetMapChipTypeByIndex(uint32_t xIndex, uint32_t yIndex
 		return MapChipType::kBlank;
 	}
 
-	return mapChipData_.data[yIndex][xIndex];
+	 MapChipType type = mapChipData_.data[yIndex][xIndex];
+
+	//崩れる床は state を見る
+	if (type == MapChipType::kCollapse) {
+		const auto& chip = collapseChipData_[yIndex][xIndex];
+
+		if (chip.state == CollapseState::Disappear) {
+			return MapChipType::kBlank;//完全に空気
+		}
+	}
+
+	return type;
 }
 
 MapChipField::IndexSet MapChipField::GetMapChipIndexSetByPosition(const Vector3& position) {
@@ -139,6 +158,8 @@ void MapChipField::UpdateCollapseChips() {
 
 			case CollapseState::WaitCollapse:
 				chip.timer--;
+				chip.shakeTime += 1.0f;
+
 				if (chip.timer<=0.0f)
 				{
 					chip.state = CollapseState::Disappear;

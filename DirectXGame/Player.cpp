@@ -389,13 +389,12 @@ void Player::CheckMapCollisionUp(CollisionMapInfo& info) {
 
 	bool ice = false;
 
-
 	// 左上点の判定
 	MapChipField::IndexSet indexSet;
 	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kLeftTop]);
 	mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
 
-	if (mapChipType == MapChipType::kBlock) {
+	if (mapChipType == MapChipType::kBlock || mapChipType == MapChipType::kCollapse) {
 		hit = true;
 	}
 
@@ -411,7 +410,7 @@ void Player::CheckMapCollisionUp(CollisionMapInfo& info) {
 	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kRightTop]);
 	mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
 
-	if (mapChipType == MapChipType::kBlock) {
+	if (mapChipType == MapChipType::kBlock || mapChipType == MapChipType::kCollapse) {
 		hit = true;
 	}
 	if (mapChipType == MapChipType::kLadder) {
@@ -484,20 +483,25 @@ void Player::CheckMapCollisionDown(CollisionMapInfo& info) {
 	bool ladder = false;
 	bool ice = false;
 
+	bool isSolid = false;
+
 	// 左下の判定
 	MapChipField::IndexSet indexSet;
 	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kRightBottom]);
 	mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
 
 	if (mapChipType == MapChipType::kBlock) {
-		hit = true;
+		isSolid = true;
 	} else if (mapChipType == MapChipType::kCollapse) {
-
 		auto& chip = mapChipField_->GetCollapseChip(indexSet.xIndex, indexSet.yIndex);
 
 		if (chip.state != CollapseState::Disappear) {
-			hit = true;
+			isSolid = true;
 		}
+	}
+
+	if (isSolid) {
+		hit = true;
 	}
 	if (mapChipType == MapChipType::kLadder) {
 		ladder = true;
@@ -506,19 +510,24 @@ void Player::CheckMapCollisionDown(CollisionMapInfo& info) {
 		ice = true;
 	}
 
+	isSolid = false;
+
 	// 右下点の判定
 	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kLeftBottom]);
 	mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
 
 	if (mapChipType == MapChipType::kBlock) {
-		hit = true;
+		isSolid = true;
 	} else if (mapChipType == MapChipType::kCollapse) {
-
 		auto& chip = mapChipField_->GetCollapseChip(indexSet.xIndex, indexSet.yIndex);
 
 		if (chip.state != CollapseState::Disappear) {
-			hit = true;
+			isSolid = true;
 		}
+	}
+
+	if (isSolid) {
+		hit = true;
 	}
 	if (mapChipType == MapChipType::kLadder) {
 		ladder = true;
@@ -530,13 +539,16 @@ void Player::CheckMapCollisionDown(CollisionMapInfo& info) {
 	// 02_08スライド11枚目 ブロックにヒット？
 	if (hit) {
 		onIce_ = false;
-		// めり込みを排除する方向に移動量を設定する
+
 		indexSet = mapChipField_->GetMapChipIndexSetByPosition(worldTransform_.translation_ + info.move + Vector3(0, -kHeight / 2.0f, 0));
-		// めり込み先ブロックの範囲矩形
+
 		MapChipField::Rect rect = mapChipField_->GetRectByIndex(indexSet.xIndex, indexSet.yIndex);
+
 		info.move.y = std::min(0.0f, rect.top - worldTransform_.translation_.y + (kHeight / 2.0f + kBlank));
-		// 地面に当たったことを記録する
+
 		info.landing = true;
+	} else {
+		info.landing = false;
 	}
 
 	// 崩れるブロック
@@ -553,6 +565,8 @@ void Player::CheckMapCollisionDown(CollisionMapInfo& info) {
 			if (chip.state == CollapseState::Appear) {
 				chip.state = CollapseState::WaitCollapse;
 				chip.timer = 180.0f;
+				//演出
+				chip.shakeTime = 0.0f;
 			}
 		}
 	}
@@ -595,7 +609,7 @@ void Player::UpdateOnGround(const CollisionMapInfo& info) {
 			std::array<Vector3, kNumCorner> positionsNew;
 
 			for (uint32_t i = 0; i < positionsNew.size(); ++i) {
-				//positionsNew[i] = CornerPosition(worldTransform_.translation_ + info.move, static_cast<Corner>(i));
+				// positionsNew[i] = CornerPosition(worldTransform_.translation_ + info.move, static_cast<Corner>(i));
 				positionsNew[i] = CornerPosition(worldTransform_.translation_, static_cast<Corner>(i));
 			}
 
@@ -632,7 +646,6 @@ void Player::UpdateOnGround(const CollisionMapInfo& info) {
 				}
 			}
 
-
 			// 落下開始
 			if (!hit) {
 				//				DebugText::GetInstance()->ConsolePrintf("jump");
@@ -650,7 +663,6 @@ void Player::UpdateOnGround(const CollisionMapInfo& info) {
 			velocity_.y = 0.0f;
 		}
 	}
-
 }
 
 // 02_08スライド27枚目 壁接地中の処理
@@ -682,13 +694,11 @@ void Player::CheckMapCollisionRight(CollisionMapInfo& info) {
 
 	bool ice = false;
 
-
 	// 右上点の判定
 	MapChipField::IndexSet indexSet;
 	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kRightTop]);
 	mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
-
-	if (mapChipType == MapChipType::kBlock) {
+	if (mapChipType == MapChipType::kBlock || mapChipType == MapChipType::kCollapse) {
 		hit = true;
 	}
 	if (mapChipType == MapChipType::kLadder) {
@@ -702,7 +712,7 @@ void Player::CheckMapCollisionRight(CollisionMapInfo& info) {
 	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kRightBottom]);
 	mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
 
-	if (mapChipType == MapChipType::kBlock) {
+	if (mapChipType == MapChipType::kBlock || mapChipType == MapChipType::kCollapse) {
 		hit = true;
 	}
 	if (mapChipType == MapChipType::kLadder) {
@@ -777,7 +787,7 @@ void Player::CheckMapCollisionLeft(CollisionMapInfo& info) {
 	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kLeftTop]);
 	mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
 
-	if (mapChipType == MapChipType::kBlock) {
+	if (mapChipType == MapChipType::kBlock || mapChipType == MapChipType::kCollapse) {
 		hit = true;
 	}
 	if (mapChipType == MapChipType::kLadder) {
@@ -791,7 +801,7 @@ void Player::CheckMapCollisionLeft(CollisionMapInfo& info) {
 	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kLeftBottom]);
 	mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
 
-	if (mapChipType == MapChipType::kBlock) {
+	if (mapChipType == MapChipType::kBlock || mapChipType == MapChipType::kCollapse) {
 		hit = true;
 	}
 	if (mapChipType == MapChipType::kLadder) {
@@ -800,7 +810,7 @@ void Player::CheckMapCollisionLeft(CollisionMapInfo& info) {
 	if (mapChipType == MapChipType::kIceBlock) {
 		ice = true;
 	}
-	
+
 	// ブロックにヒット？
 	if (hit) {
 		onIce_ = false;

@@ -281,18 +281,27 @@ void GameScene::CollapseBlocs() {
 	}
 }
 
-void GameScene::UpdateCollapseBlocks()
-{
+void GameScene::UpdateCollapseBlocks() {
 	for (uint32_t y = 0; y < worldTransformCollapse_.size(); ++y) {
 		for (uint32_t x = 0; x < worldTransformCollapse_[y].size(); ++x) {
 
 			WorldTransform* wt = worldTransformCollapse_[y][x];
-			if (!wt)
-				continue;
+			if (!wt) {
+				continue; // ← return はダメ
+			}
 
+			//崩れる床の状態を取得
 			auto& chip = mapChipField_->GetCollapseChip(x, y);
-			if (chip.state == CollapseState::Disappear)
-				continue;
+
+			Vector3 basePos = mapChipField_->GetMapChipPositionByIndex(x, y);
+
+			//シェイクは WaitCollapse 中だけ
+			if (chip.state == CollapseState::WaitCollapse) {
+				float shake = sinf(chip.shakeTime * 1.0f) * 0.1f;
+				wt->translation_ = basePos + Vector3(shake, 0, 0);
+			} else {
+				wt->translation_ = basePos;
+			}
 
 			WorldTransformUpdate(*wt);
 		}
@@ -391,10 +400,6 @@ void GameScene::Update() {
 				WorldTransformUpdate(*worldTransformIce);
 			}
 		}
-		
-		// 崩れるブロックの更新
-		UpdateCollapseBlocks();
-
 		break;
 	case Phase::kPlay:
 		skydome_->Update();
