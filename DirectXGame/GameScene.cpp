@@ -57,13 +57,13 @@ void GameScene::Initialize() {
 	modelBlock_ = Model::CreateFromOBJ("block");
 
 	// 梯子モデル
-	modelLadder_ = Model::CreateFromOBJ("enemy");
+	modelLadder_ = Model::CreateFromOBJ("Ladder");
 
 	// 氷ブロックモデル
 	modelIce_ = Model::CreateFromOBJ("ice");
 	
 	// 崩れるブロックモデル
-	modelCollapse_ = Model::CreateFromOBJ("enemy");
+	modelCollapse_ = Model::CreateFromOBJ("Collapse");
 
 	// デバッグカメラの生成
 	debugCamera_ = new DebugCamera(WinApp::kWindowWidth, WinApp::kWindowHeight);
