@@ -11,7 +11,8 @@ std::map<std::string, MapChipType> mapChipTable = {
     {"1", MapChipType::kBlock   },
     {"2", MapChipType::kLadder  },
     {"3", MapChipType::kIceBlock},
-    {"4", MapChipType::kCollapse}
+    {"4", MapChipType::kCollapse},
+    {"5", MapChipType::kGoal},
 };
 }
 
@@ -37,7 +38,7 @@ void MapChipField::ResetMapChipData() {
 
 		for (uint32_t x = 0; x < kNumBlockHorizontal; ++x) {
 			auto& chip = collapseChipData_[y][x];
-			chip.state = CollapseState::Appear; // ★ 最初は表示
+			chip.state = CollapseState::Appear; //最初は表示
 			chip.timer = 0.0f;
 			chip.shakeTime = 0.0f;
 		}

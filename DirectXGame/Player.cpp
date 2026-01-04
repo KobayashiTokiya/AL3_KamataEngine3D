@@ -482,6 +482,7 @@ void Player::CheckMapCollisionDown(CollisionMapInfo& info) {
 	bool hit = false;
 	bool ladder = false;
 	bool ice = false;
+	bool goal = false;
 
 	bool isSolid = false;
 
@@ -509,6 +510,9 @@ void Player::CheckMapCollisionDown(CollisionMapInfo& info) {
 	if (mapChipType == MapChipType::kIceBlock) {
 		ice = true;
 	}
+	if (mapChipType == MapChipType::kGoal) {
+		goal = true;
+	}
 
 	isSolid = false;
 
@@ -534,6 +538,9 @@ void Player::CheckMapCollisionDown(CollisionMapInfo& info) {
 	}
 	if (mapChipType == MapChipType::kIceBlock) {
 		ice = true;
+	}
+	if (mapChipType == MapChipType::kGoal) {
+		goal = true;
 	}
 
 	// 02_08スライド11枚目 ブロックにヒット？
@@ -591,6 +598,12 @@ void Player::CheckMapCollisionDown(CollisionMapInfo& info) {
 		info.move.y = std::min(0.0f, rect.top - worldTransform_.translation_.y + (kHeight / 2.0f + kBlank));
 		// 地面に当たったことを記録する
 		info.landing = true;
+	}
+
+	// ゴールブロック
+	if (goal) {
+
+		onGoal_ = true;
 	}
 }
 

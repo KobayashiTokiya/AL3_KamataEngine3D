@@ -106,6 +106,7 @@ public:
 	bool GetLadder() const { return onLadder_; }
 	bool GetCollapse() const { return onCollapse_; }
 	//float GetCollapseTime() const { return collapseTime; }
+	bool IsOnGoal() const { return onGoal_; }
 
 private:
 	// ワールド変換データ
@@ -191,6 +192,9 @@ private:
 	bool onCollapse_ = false;
 	//float collapseTime = 30.0f;
 	bool collapseWasLanding_ = false;
+
+	//ゴールブロック
+	bool onGoal_ = false;
 
 	// 02_08スライド16枚目 着地時の速度減衰率
 	static inline const float kAttenuationLanding = 0.03f;
