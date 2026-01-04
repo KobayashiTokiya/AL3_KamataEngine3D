@@ -14,6 +14,7 @@ GameScene::~GameScene() {
 	delete modelLadder_;
 	delete modelIce_;
 	delete modelCollapse_;
+	delete modelGoal_;
 
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
 		for (WorldTransform* worldTransformBlock : worldTransformBlockLine) {
@@ -65,6 +66,9 @@ void GameScene::Initialize() {
 	// 崩れるブロックモデル
 	modelCollapse_ = Model::CreateFromOBJ("Collapse");
 
+	//ゴール
+	modelGoal_ = Model::CreateFromOBJ("enemy");
+
 	// デバッグカメラの生成
 	debugCamera_ = new DebugCamera(WinApp::kWindowWidth, WinApp::kWindowHeight);
 
@@ -81,6 +85,7 @@ void GameScene::Initialize() {
 	LadderBlocks();
 	IceBlocks();
 	CollapseBlocs();
+	GoalBlock();
 
 
 	kamaModel_ = Model::CreateFromOBJ("kama", "kama.png");
@@ -282,6 +287,31 @@ void GameScene::CollapseBlocs() {
 	}
 }
 
+void GameScene::GoalBlock() {
+	uint32_t numBlockVirtical = mapChipField_->GetNumBlockVirtical();
+	uint32_t numBlockHorizontal = mapChipField_->GetNumBlockHorizontal();
+
+	worldTransformGoal_.resize(numBlockVirtical);
+	for (uint32_t i = 0; i < numBlockVirtical; ++i) {
+		worldTransformGoal_[i].resize(numBlockHorizontal);
+	}
+
+	// ブロックの生成
+	for (uint32_t i = 0; i < numBlockVirtical; ++i) {
+
+		for (uint32_t j = 0; j < numBlockHorizontal; ++j) {
+
+			// ブロックを変える
+			if (mapChipField_->GetMapChipTypeByIndex(j, i) == MapChipType::kGoal) {
+				WorldTransform* worldTransform = new WorldTransform();
+				worldTransform->Initialize();
+				worldTransformGoal_[i][j] = worldTransform;
+				worldTransformGoal_[i][j]->translation_ = mapChipField_->GetMapChipPositionByIndex(j, i);
+			}
+		}
+	}
+}
+
 void GameScene::UpdateCollapseBlocks() {
 	for (uint32_t y = 0; y < worldTransformCollapse_.size(); ++y) {
 		for (uint32_t x = 0; x < worldTransformCollapse_[y].size(); ++x) {
@@ -401,6 +431,18 @@ void GameScene::Update() {
 				WorldTransformUpdate(*worldTransformIce);
 			}
 		}
+
+		// ゴールの更新
+		for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformGoal_) {
+			for (WorldTransform*& worldTransformGoal : worldTransformBlockLine) {
+
+				if (!worldTransformGoal)
+					continue;
+
+				// アフィン変換～DirectXに転送
+				WorldTransformUpdate(*worldTransformGoal);
+			}
+		}
 		break;
 	case Phase::kPlay:
 		skydome_->Update();
@@ -471,6 +513,17 @@ void GameScene::Update() {
 				WorldTransformUpdate(*worldTransformBlock);
 			}
 		}
+		// ゴールの更新
+		for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformGoal_) {
+			for (WorldTransform*& worldTransformGoal : worldTransformBlockLine) {
+
+				if (!worldTransformGoal)
+					continue;
+
+				// アフィン変換～DirectXに転送
+				WorldTransformUpdate(*worldTransformGoal);
+			}
+		}
 
 		// 崩れるブロックの更新
 		UpdateCollapseBlocks();
@@ -514,16 +567,16 @@ void GameScene::Update() {
 	}
 
 	// --- 敵全滅チェック ---
-	bool allDead = true;
-	for (Enemy* enemy : enemies_) {
-		if (!enemy->IsDead()) {
-			allDead = false;
-			break;
-		}
-	}
-
-	// 敵全滅ならクリアフラグ
-	if (allDead && phase_ == Phase::kPlay) {
+	//bool allDead = true;
+	//for (Enemy* enemy : enemies_) {
+	//	if (!enemy->IsDead()) {
+	//		allDead = false;
+	//		break;
+	//	}
+	//}
+	//
+	//// 敵全滅ならクリアフラグ
+	if (player_->IsOnGoal() && phase_ == Phase::kPlay) {
 		isGameClear_ = true;
 		finished_ = true;
 		phase_ = Phase::kFadeOut;
@@ -673,6 +726,16 @@ void GameScene::Draw() {
 			}
 
 			modelCollapse_->Draw(*wt, camera_);
+		}
+	}
+
+	// ゴールの更新
+	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformGoal_) {
+		for (WorldTransform*& worldTransformBlock : worldTransformBlockLine) {
+
+			if (!worldTransformBlock)
+				continue;
+			modelGoal_->Draw(*worldTransformBlock, camera_);
 		}
 	}
 

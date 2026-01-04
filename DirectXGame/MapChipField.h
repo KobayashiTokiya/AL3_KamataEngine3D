@@ -13,7 +13,8 @@ enum class MapChipType
 	kBlock,   //ブロック
 	kLadder,  //梯子
 	kIceBlock,//滑る床
-	kCollapse //崩れる床
+	kCollapse, //崩れる床
+	kGoal
 };
 
 enum class CollapseState 

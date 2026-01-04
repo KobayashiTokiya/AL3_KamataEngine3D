@@ -37,6 +37,9 @@ public:
 	void CollapseBlocs();
 	void UpdateCollapseBlocks();
 
+	//ゴールブロック
+	void GoalBlock(); 
+
 	// 02_12
 	void ChangePhase();
 
@@ -86,6 +89,9 @@ private:
 	Model* modelCollapse_ = nullptr;
 	std::vector<std::vector<WorldTransform*>> worldTransformCollapse_;
 
+	//ゴール
+	Model* modelGoal_ = nullptr;
+	std::vector<std::vector<WorldTransform*>> worldTransformGoal_;
 
 	// デバックカメラ有効
 	bool isDebugCameraActive_ = false;
