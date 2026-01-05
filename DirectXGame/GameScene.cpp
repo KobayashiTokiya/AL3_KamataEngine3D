@@ -128,13 +128,22 @@ void GameScene::Initialize() {
 	//	Vector3 enemyPosition = mapChipField_->GetMapChipPositionByIndex(14, 18);
 	// enemy_->Initialize(enemyModel_, &camera_, enemyPosition);
 
+	std::vector<std::pair<int32_t, int32_t>> enemySpawnPos = {
+	    {30, 18},
+	    {20, 18},
+	    {25, 8},
+	};
+
 	// 02_10 5枚目（for文の中身全部）
-	for (int32_t i = 0; i < 2; ++i) {
+	for (auto& pos:enemySpawnPos) {
 		Enemy* newEnemy = new Enemy();
 
-		Vector3 enemyPosition = mapChipField_->GetMapChipPositionByIndex(30 + i * 2, 18);
+		Vector3 enemyPosition = mapChipField_->GetMapChipPositionByIndex(pos.first, pos.second);
 
 		newEnemy->Initialize(enemyModel_, &camera_, enemyPosition);
+
+		newEnemy->SetMapChipField(mapChipField_);
+
 
 		enemies_.push_back(newEnemy);
 	}
