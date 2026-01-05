@@ -36,7 +36,7 @@ private:
 	// 追従対象とカメラの座標の差(オフセット)
 	Vector3 targetOffset_ = {0, 0, -15.0f};
 	// カメラ移動範囲
-	Rect movableArea_ = {0, 100, 0, 100};
+	Rect movableArea_ = {-10000, 10000, -10000, 10000};
 	//カメラの目標座標
 	Vector3 destination_;
 	//座標補間割合

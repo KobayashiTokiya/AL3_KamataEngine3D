@@ -117,7 +117,7 @@ void GameScene::Initialize() {
 	CController_->Reset();                 // リセット
 
 	// 02_06カメラコントローラ スライド18枚目
-	CameraController::Rect cameraArea = {12.0f, 100 - 12.0f, 6.0f, 6.0f};
+	CameraController::Rect cameraArea = {12.0f, 100 - 12.0f, 6.0f, 16.0f};
 	CController_->SetMovableArea(cameraArea);
 
 	// 02_09 10枚目 敵クラス → 02_10の5枚目で削除
