@@ -69,6 +69,7 @@ private:
 	// 02_15 
 	bool isDead_ = false;
 
+
 	Behavior behavior_ = Behavior::kWalk;
 	Behavior behaviorRequest_ = Behavior::kUnknown;
 
