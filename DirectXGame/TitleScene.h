@@ -48,4 +48,10 @@ private:
 	// 背景モデル
 	Model* modelBackground_ = nullptr;
 	WorldTransform worldTransformBackground_;
+
+	uint32_t textureHandle_ = 0;
+	KamataEngine::Sprite* operationSprite_ = nullptr;
+
+	uint32_t startTextureHandle_ = 0;
+	KamataEngine::Sprite* startSprite_ = nullptr;
 };

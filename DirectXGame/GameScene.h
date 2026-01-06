@@ -141,5 +141,5 @@ private:
 	Model* kamaModel_ = nullptr;
 	WorldTransform worldTransformKama_;
 
-	
+
 };

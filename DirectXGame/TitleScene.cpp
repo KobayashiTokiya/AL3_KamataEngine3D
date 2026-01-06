@@ -27,7 +27,7 @@ void TitleScene::Initialize()
 	// カメラ初期化
 	camera_.Initialize();
 
-	const float kPlayerTitle = 2.0f;
+	const float kPlayerTitle = 5.0f;
 
 	worldTransformTitle_.Initialize();
 	worldTransformTitle_.scale_ = {kPlayerTitle, kPlayerTitle, kPlayerTitle};
@@ -45,6 +45,12 @@ void TitleScene::Initialize()
 	fade_->Initialize();
 
 	fade_->Start(Fade::Status::FadeIn, 1.0f);
+
+	textureHandle_ = TextureManager::Load("sprite/operation.png");
+	operationSprite_ = Sprite::Create(textureHandle_, {850, 600});
+
+	startTextureHandle_ = TextureManager::Load("sprite/push_space.png");
+	startSprite_ = Sprite::Create(startTextureHandle_, {440, 620});
 }
 
 void TitleScene::Update()
@@ -114,4 +120,10 @@ void TitleScene::Draw()
 	//02_13
 	fade_->Draw();
 	Model::PostDraw();
+
+	Sprite::PreDraw(commandList);
+
+	operationSprite_->Draw();
+	startSprite_->Draw();
+	Sprite::PostDraw();
 };
