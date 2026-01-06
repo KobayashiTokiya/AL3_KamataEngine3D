@@ -1,6 +1,8 @@
 #pragma once
 #include "Math.h"
 
+class MapChipField;
+
 using namespace KamataEngine;
 
 class Player;
@@ -39,6 +41,10 @@ public:
 	
 	bool IsCollisionDisabled() const { return isCollisionDisabled_; }
 
+	bool IsHitWall();
+
+	void SetMapChipField(MapChipField* mapChipField) { mapChipField_ = mapChipField; }
+
 private:
 	WorldTransform worldTransform_;
 
@@ -69,6 +75,7 @@ private:
 	// 02_15 
 	bool isDead_ = false;
 
+
 	Behavior behavior_ = Behavior::kWalk;
 	Behavior behaviorRequest_ = Behavior::kUnknown;
 
@@ -81,4 +88,6 @@ private:
 
 	//敵が全員死ぬときのフラグ
 	bool isAllEnemyDead = false;
+
+	 MapChipField* mapChipField_ = nullptr;
 };

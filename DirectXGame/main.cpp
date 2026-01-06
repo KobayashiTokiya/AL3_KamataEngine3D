@@ -120,7 +120,7 @@ void DrawScene() {
 int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
 	// エンジンの初期化
-	KamataEngine::Initialize(L"LE2C_09_コバヤシ_トキヤ_過去の産物壊しちゃえ");
+	KamataEngine::Initialize(L"LE2C_09_コバヤシ_トキヤ_上へ上へ");
 
 	// DirectXCommonインスタンスの取得
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();

@@ -102,10 +102,10 @@ void Player::BehaviorRootUpdate() {
 	}
 
 	// 02_14 18枚目 攻撃キーを押したら
-	if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
-		// 攻撃ビヘイビアをリクエスト
-		behaviorRequest_ = Behavior::kAttack;
-	}
+	//if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
+	//	// 攻撃ビヘイビアをリクエスト
+	//	behaviorRequest_ = Behavior::kAttack;
+	//}
 
 	// ワールド行列更新（アフィン変換～DirectXに転送）
 	//	WorldTransformUpdate(worldTransform_);

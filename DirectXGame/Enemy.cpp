@@ -3,6 +3,7 @@
 #include "Player.h"
 #include <cassert>
 #include <numbers>
+#include "MapChipField.h"
 
 void Enemy::Initialize(Model* model, Camera* camera, const Vector3& position) {
 	model_ = model;
@@ -39,16 +40,23 @@ void Enemy::Update() {
 	switch (behavior_) {
 	// 歩行
 	case Behavior::kWalk:
+		// 壁に当たったら反転
+		if (IsHitWall()) {
+			velocity_.x *= -1.0f;
+
+			// 向きも反転（見た目用）
+			worldTransform_.rotation_.y += std::numbers::pi_v<float>;
+		}
+
 		// 移動
 		worldTransform_.translation_ += velocity_;
 
-		// タイマーを加算
+		// タイマー
 		walkTimer += 1.0f / 60.0f;
 
 		// 回転アニメーション
-		worldTransform_.rotation_.x = std::sin(std::numbers::pi_v<float> * 2.0f * walkTimer / kWalkMotionTime);
+		//worldTransform_.rotation_.x = std::sin(std::numbers::pi_v<float> * 2.0f * walkTimer / kWalkMotionTime);
 
-		// ワールド行列更新
 		WorldTransformUpdate(worldTransform_);
 		break;
 	// やられ
@@ -111,4 +119,18 @@ void Enemy::OnCollision(const Player* player)
 		// 02_15 20枚目 衝突を無効化
 		isCollisionDisabled_ = true;
 	}
+}
+
+bool Enemy::IsHitWall()
+{
+	// 進行方向
+	float dir = (velocity_.x > 0.0f) ? 1.0f : -1.0f;
+
+	// 体の横先端
+	Vector3 checkPos = worldTransform_.translation_;
+	checkPos.x += dir * (kWidth * 0.5f + 0.01f);
+
+	auto index = mapChipField_->GetMapChipIndexSetByPosition(checkPos);
+
+	return mapChipField_->GetMapChipTypeByIndex(index.xIndex, index.yIndex) == MapChipType::kBlock;
 }
