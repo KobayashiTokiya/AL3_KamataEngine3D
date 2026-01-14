@@ -43,6 +43,8 @@ public:
 
 	bool IsHitWall();
 
+	bool IsOnGround();
+
 	void SetMapChipField(MapChipField* mapChipField) { mapChipField_ = mapChipField; }
 
 private:
@@ -90,4 +92,9 @@ private:
 	bool isAllEnemyDead = false;
 
 	 MapChipField* mapChipField_ = nullptr;
+
+	 //重力 
+	 float kGravity = 0.03f;
+	 //最大落下速度
+	 float kMaxFallSpeed = 0.5f;
 };

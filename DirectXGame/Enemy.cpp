@@ -40,6 +40,19 @@ void Enemy::Update() {
 	switch (behavior_) {
 	// 歩行
 	case Behavior::kWalk:
+
+		if (!IsOnGround())
+		{
+			velocity_.y-=kGravity;
+			if (velocity_.y< -kMaxFallSpeed) 
+			{
+				velocity_.y = -kMaxFallSpeed;
+			}
+		}
+		else {
+			velocity_.y = 0.0f;
+		}
+
 		// 壁に当たったら反転
 		if (IsHitWall()) {
 			velocity_.x *= -1.0f;
@@ -131,6 +144,17 @@ bool Enemy::IsHitWall()
 	checkPos.x += dir * (kWidth * 0.5f + 0.01f);
 
 	auto index = mapChipField_->GetMapChipIndexSetByPosition(checkPos);
+
+	return mapChipField_->GetMapChipTypeByIndex(index.xIndex, index.yIndex) == MapChipType::kBlock;
+}
+
+bool Enemy::IsOnGround()
+{
+	Vector3 checkPos = worldTransform_.translation_;
+
+	checkPos.y -= (kHeight * 0.5f+ 0.05f);
+	
+	auto index =mapChipField_->GetMapChipIndexSetByPosition(checkPos); 
 
 	return mapChipField_->GetMapChipTypeByIndex(index.xIndex, index.yIndex) == MapChipType::kBlock;
 }
