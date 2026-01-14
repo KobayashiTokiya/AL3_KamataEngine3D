@@ -164,7 +164,7 @@ void MapChipField::UpdateCollapseChips() {
 				if (chip.timer<=0.0f)
 				{
 					chip.state = CollapseState::Disappear;
-					chip.timer = 600.0f;
+					chip.timer = 180.0f;
 				}
 				break;
 			case CollapseState::Disappear:
