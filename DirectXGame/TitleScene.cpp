@@ -9,6 +9,10 @@ TitleScene::~TitleScene()
 { 
 	delete modelPlayer_;
 	delete modelTitle_;
+
+	delete operationSprite_;
+	delete startSprite_;
+
 	//02_13
 	delete fade_;
 }
@@ -23,6 +27,14 @@ void TitleScene::Initialize()
 	worldTransformBackground_.Initialize();
 	worldTransformBackground_.scale_ = {50.0f, 50.0f, 1.0f};       // 背景の大きさ
 	worldTransformBackground_.translation_ = {0.0f, 0.0f, -10.0f}; // カメラより奥
+
+	//操作説明
+	textureHandle_ = TextureManager::Load("sprite/operation.png");
+	operationSprite_ = Sprite::Create(textureHandle_, {850, 600});
+	
+	//スタートボタン
+	startTextureHandle_ = TextureManager::Load("sprite/push_space.png");
+	startSprite_ = Sprite::Create(startTextureHandle_, {440, 620});
 
 	// カメラ初期化
 	camera_.Initialize();
@@ -45,12 +57,6 @@ void TitleScene::Initialize()
 	fade_->Initialize();
 
 	fade_->Start(Fade::Status::FadeIn, 1.0f);
-
-	textureHandle_ = TextureManager::Load("sprite/operation.png");
-	operationSprite_ = Sprite::Create(textureHandle_, {850, 600});
-
-	startTextureHandle_ = TextureManager::Load("sprite/push_space.png");
-	startSprite_ = Sprite::Create(startTextureHandle_, {440, 620});
 }
 
 void TitleScene::Update()
@@ -117,13 +123,19 @@ void TitleScene::Draw()
 	// 背景
 	modelBackground_->Draw(worldTransformBackground_, camera_);
 
+	Model::PostDraw();
+
+	Sprite::PreDraw(commandList);
+	
+	operationSprite_->Draw();
+	startSprite_->Draw();
+	
+	Sprite::PostDraw();
+
+	//フェード用
+	Model::PreDraw(commandList);
 	//02_13
 	fade_->Draw();
 	Model::PostDraw();
 
-	Sprite::PreDraw(commandList);
-
-	operationSprite_->Draw();
-	startSprite_->Draw();
-	Sprite::PostDraw();
 };
