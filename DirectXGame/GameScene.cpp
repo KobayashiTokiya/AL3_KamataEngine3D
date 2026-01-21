@@ -72,7 +72,7 @@ void GameScene::Initialize() {
 	// デバッグカメラの生成
 	debugCamera_ = new DebugCamera(WinApp::kWindowWidth, WinApp::kWindowHeight);
 
-	// 02_03 skydome生成
+	// 02_03 SkyDome　生成
 	skydome_ = new Skydome();
 	// 初期化
 	modelSkydome_ = Model::CreateFromOBJ("SkyDome", true);
@@ -112,7 +112,7 @@ void GameScene::Initialize() {
 
 	// 02_06カメラコントローラ スライド13枚目
 	CController_ = new CameraController(); // 生成
-	CController_->Initiallize(&camera_);   // 初期化
+	CController_->Initialize(&camera_);   // 初期化
 	CController_->SetTarget(player_);      // 追従対象セット
 	CController_->Reset();                 // リセット
 

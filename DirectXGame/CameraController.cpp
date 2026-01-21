@@ -3,7 +3,7 @@
 #include "Math.h"
 #include "Player.h"
 
-void CameraController::Initiallize(Camera *camera) 
+void CameraController::Initialize(Camera *camera) 
 {
 	camera_=camera; 
 }

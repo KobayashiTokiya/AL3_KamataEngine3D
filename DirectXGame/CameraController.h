@@ -19,7 +19,7 @@ public:
 		float top = 1.0f;
 	};
 
-	void Initiallize(Camera* camera);
+	void Initialize(Camera* camera);
 
 	void Update();
 
