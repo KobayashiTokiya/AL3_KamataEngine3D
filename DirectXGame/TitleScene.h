@@ -54,4 +54,7 @@ private:
 
 	uint32_t startTextureHandle_ = 0;
 	KamataEngine::Sprite* startSprite_ = nullptr;
+
+	Vector2 screenSize = {30.0f,20.0f};
+	int moveX = 1;
 };
