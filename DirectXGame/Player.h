@@ -231,5 +231,6 @@ private:
 	// 02_15
 	bool isCollisionDisabled_ = false; // 衝突無効化
 	
-	
+	// メンバ変数
+	bool wasOnGround_ = false;
 };

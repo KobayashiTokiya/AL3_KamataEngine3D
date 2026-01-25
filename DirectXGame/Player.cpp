@@ -51,6 +51,8 @@ void Player::Update() {
 	WorldTransformUpdate(worldTransform_);
 	WorldTransformUpdate(worldTransformAttack_);
 
+	wasOnGround_ = onGround_;
+
 	// 02_14 6枚目
 	//	BehaviorRootUpdate();
 
@@ -227,7 +229,7 @@ void Player::BehaviorClimbUpdate() {
 
 	float climbVelocty = 0.2f;
 	Vector3 velocty = {};
-
+	velocity_.y = 0.0f;
 	if (Input::GetInstance()->PushKey(DIK_UP)) {
 		velocity_.y = climbVelocty;
 	} else if (Input::GetInstance()->PushKey(DIK_DOWN)) {
@@ -334,21 +336,19 @@ void Player::InputMove() {
 		IceUpdate();
 	} else if ((onGround_ || onLadder_)) {
 		normalAction();
-	} else {
+	} 
+	else {
 		normalAction();
 	}
 
-	if (onGround_) {
-		if (Input::GetInstance()->PushKey(DIK_UP)) {
-			// ジャンプ初速
+	
+	if (Input::GetInstance()->TriggerKey(DIK_UP)) {
+		if (onGround_ || wasOnGround_) {
 			velocity_.y = kJumpAcceleration / 60.0f;
 		}
-	} else if (!onLadder_) {
-		// 落下速度（はしごにいないときだけ重力をかける）
-		velocity_ += Vector3(0, -kGravityAcceleration / 60.0f, 0);
-		velocity_.y = std::max(velocity_.y, -kLimitFallSpeed);
+	} else if (onLadder_) {
+		BehaviorClimbUpdate();
 	} else {
-		// 落下速度
 		velocity_ += Vector3(0, -kGravityAcceleration / 60.0f, 0);
 		velocity_.y = std::max(velocity_.y, -kLimitFallSpeed);
 	}
