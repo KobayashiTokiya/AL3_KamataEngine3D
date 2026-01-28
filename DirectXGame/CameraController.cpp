@@ -30,3 +30,9 @@ void CameraController::Reset()
 	//追従対象とオフセットからカメラの座標を計算
 	camera_->translation_ = targetWorldTransform.translation_ + targetOffset_;
 }
+
+void CameraController::StartDeathCamera()
+{ 
+	isDeadCamera = true;
+	deathCameraT_ = 0.0f;
+}

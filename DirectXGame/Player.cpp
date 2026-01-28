@@ -3,6 +3,7 @@
 #include "Player.h"
 #include "MapChipField.h"
 #include "Math.h"
+#include "CameraController.h"
 
 #include <algorithm>
 #include <cassert>
@@ -52,6 +53,10 @@ void Player::Update() {
 	WorldTransformUpdate(worldTransformAttack_);
 
 	wasOnGround_ = onGround_;
+
+	if (deathStaging_) {
+		DeathStaging();
+	}
 
 	// 02_14 6枚目
 	//	BehaviorRootUpdate();
@@ -104,7 +109,7 @@ void Player::BehaviorRootUpdate() {
 	}
 
 	// 02_14 18枚目 攻撃キーを押したら
-	//if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
+	// if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
 	//	// 攻撃ビヘイビアをリクエスト
 	//	behaviorRequest_ = Behavior::kAttack;
 	//}
@@ -332,25 +337,29 @@ void Player::normalAction() {
 
 // 移動入力(02_07 スライド10枚目)
 void Player::InputMove() {
-	if (onIce_) {
-		IceUpdate();
-	} else if ((onGround_ || onLadder_)) {
-		normalAction();
-	} 
-	else {
-		normalAction();
-	}
-
-	
-	if (Input::GetInstance()->TriggerKey(DIK_UP)) {
-		if (onGround_ || wasOnGround_) {
-			velocity_.y = kJumpAcceleration / 60.0f;
+	if (!deathStaging_) {
+		if (onIce_) {
+			IceUpdate();
+		} else if ((onGround_ || onLadder_)) {
+			normalAction();
+		} else {
+			normalAction();
 		}
-	} else if (onLadder_) {
-		BehaviorClimbUpdate();
-	} else {
-		velocity_ += Vector3(0, -kGravityAcceleration / 60.0f, 0);
-		velocity_.y = std::max(velocity_.y, -kLimitFallSpeed);
+
+		if (Input::GetInstance()->TriggerKey(DIK_UP)) {
+			if (onGround_ || wasOnGround_) {
+				velocity_.y = kJumpAcceleration / 60.0f;
+			}
+		} else if (onLadder_) {
+			BehaviorClimbUpdate();
+		} else {
+			velocity_ += Vector3(0, -kGravityAcceleration / 60.0f, 0);
+			velocity_.y = std::max(velocity_.y, -kLimitFallSpeed);
+		}
+	}
+	else
+	{
+		velocity_ = {0.0f};
 	}
 }
 
@@ -408,7 +417,7 @@ void Player::CheckMapCollisionUp(CollisionMapInfo& info) {
 		ice = true;
 	}
 
-	if (mapChipType==MapChipType::kGoal) {
+	if (mapChipType == MapChipType::kGoal) {
 		goal = true;
 	}
 
@@ -425,8 +434,7 @@ void Player::CheckMapCollisionUp(CollisionMapInfo& info) {
 	if (mapChipType == MapChipType::kIceBlock) {
 		ice = true;
 	}
-	if (mapChipType==MapChipType::kGoal)
-	{
+	if (mapChipType == MapChipType::kGoal) {
 		goal = true;
 	}
 
@@ -470,8 +478,7 @@ void Player::CheckMapCollisionUp(CollisionMapInfo& info) {
 		}
 	}
 
-	if (goal)
-	{
+	if (goal) {
 		onGoal_ = true;
 		MapChipField::IndexSet indexSetNow;
 		indexSetNow = mapChipField_->GetMapChipIndexSetByPosition(worldTransform_.translation_ + Vector3(0, +kHeight / 2.0f, 0));
@@ -596,7 +603,7 @@ void Player::CheckMapCollisionDown(CollisionMapInfo& info) {
 			if (chip.state == CollapseState::Appear) {
 				chip.state = CollapseState::WaitCollapse;
 				chip.timer = 180.0f;
-				//演出
+				// 演出
 				chip.shakeTime = 0.0f;
 			}
 		}
@@ -747,8 +754,7 @@ void Player::CheckMapCollisionRight(CollisionMapInfo& info) {
 		ice = true;
 	}
 
-	if (mapChipType==MapChipType::kGoal)
-	{
+	if (mapChipType == MapChipType::kGoal) {
 		goal = true;
 	}
 
@@ -765,8 +771,7 @@ void Player::CheckMapCollisionRight(CollisionMapInfo& info) {
 	if (mapChipType == MapChipType::kIceBlock) {
 		ice = true;
 	}
-	if (mapChipType==MapChipType::kGoal)
-	{
+	if (mapChipType == MapChipType::kGoal) {
 		goal = true;
 	}
 
@@ -810,8 +815,7 @@ void Player::CheckMapCollisionRight(CollisionMapInfo& info) {
 		}
 	}
 
-	if (goal) 
-	{
+	if (goal) {
 		onGoal_ = true;
 		// 現在座標が壁の外か判定
 		MapChipField::IndexSet indexSetNow;
@@ -860,8 +864,7 @@ void Player::CheckMapCollisionLeft(CollisionMapInfo& info) {
 	if (mapChipType == MapChipType::kIceBlock) {
 		ice = true;
 	}
-	if (mapChipType==MapChipType::kGoal)
-	{
+	if (mapChipType == MapChipType::kGoal) {
 		goal = true;
 	}
 
@@ -878,8 +881,7 @@ void Player::CheckMapCollisionLeft(CollisionMapInfo& info) {
 	if (mapChipType == MapChipType::kIceBlock) {
 		ice = true;
 	}
-	if (mapChipType==MapChipType::kGoal)
-	{
+	if (mapChipType == MapChipType::kGoal) {
 		goal = true;
 	}
 
@@ -925,8 +927,7 @@ void Player::CheckMapCollisionLeft(CollisionMapInfo& info) {
 		}
 	}
 
-	if (goal)
-	{
+	if (goal) {
 		onGoal_ = true;
 		// 現在座標が壁の外か判定
 		MapChipField::IndexSet indexSetNow;
@@ -957,7 +958,6 @@ Vector3 Player::CornerPosition(const Vector3& center, Corner corner) {
 #pragma endregion
 
 void Player::Draw() {
-
 	model_->Draw(worldTransform_, *camera_);
 	if (behavior_ == Behavior::kAttack) {
 		switch (attackPhase_) {
@@ -1009,8 +1009,31 @@ void Player::OnCollision(const Enemy* enemy) {
 	(void)enemy;
 
 	// 02_12 12枚目 書き換え
-	isDead_ = true;
+	deathStaging_ = true;
+
 
 	// 02_15 20枚目
 	isCollisionDisabled_ = true; // 衝突無効化
+}
+
+void Player::DeathStaging() {
+	
+	deathStagingTime--;
+	if (deathStagingTime >= 180) {
+		worldTransform_.rotation_.y += 0.3f;
+	} 
+	else if (deathStagingTime >= 60)
+	{
+		worldTransform_.rotation_.x = 2.0f;
+		worldTransform_.rotation_.y = -1.5f;
+	}
+	
+	if (deathStagingTime <= 0) {
+		isDead_ = true;
+	}
+}
+
+void Player::SetCameraController(CameraController* cameraController)
+{ 
+	cameraController_ = cameraController; 
 }

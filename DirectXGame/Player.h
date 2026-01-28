@@ -5,6 +5,7 @@
 using namespace KamataEngine;
 
 class MapChipField;
+class CameraController;
 
 // 02_10 21枚目
 class Enemy;
@@ -107,6 +108,11 @@ public:
 	bool GetCollapse() const { return onCollapse_; }
 	//float GetCollapseTime() const { return collapseTime; }
 	bool IsOnGoal() const { return onGoal_; }
+
+	//演出
+	void DeathStaging();
+
+	void SetCameraController(CameraController* cameraController);
 
 private:
 	// ワールド変換データ
@@ -233,4 +239,10 @@ private:
 	
 	// メンバ変数
 	bool wasOnGround_ = false;
+
+	//プレイヤーが敵に当たった時にやられた演出に行くフラグ
+	bool deathStaging_ = false;
+	float deathStagingTime = 300.0f;
+
+	CameraController* cameraController_ = nullptr;
 };

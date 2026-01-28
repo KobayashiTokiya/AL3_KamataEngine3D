@@ -594,7 +594,6 @@ void GameScene::Update() {
 	// プレイヤー死亡ならゲームオーバーフラグ
 	if (player_->IsDead() && phase_ == Phase::kPlay) {
 		isPlayerDead_ = true;
-		finished_ = true;
 		phase_ = Phase::kFadeOut;
 		fade_->Start(Fade::Status::FadeOut, 1.0f);
 	}
@@ -680,8 +679,9 @@ void GameScene::Draw() {
 	Model::PreDraw(dxCommon->GetCommandList());
 
 	// 自キャラの描画
-	if (!player_->IsDead())
-		player_->Draw();
+	//if (!player_->IsDead()) {	
+	player_->Draw();
+	//}
 
 	// 天球描画
 	skydome_->Draw();

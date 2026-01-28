@@ -29,6 +29,8 @@ public:
 
 	void SetMovableArea(Rect area) { movableArea_ = area; }
 
+	void StartDeathCamera();
+
 private:
 	Camera* camera_ = nullptr;
 
@@ -45,4 +47,9 @@ private:
 	static inline const float kVelocityBias = 30.0f;
 	//追従対象の各方向へのカメラ移動範囲
 	static inline const Rect targetMargin = {-9.0f, 9.0f, -5.0f, 5.0f};
+
+	//プレイヤーがやられた時のカメラ
+	bool isDeadCamera = false;
+	float deathCameraT_ = 0.0f;
+	Vector3 deathOffset_ = {0.0f, 0.0f, -5.0f};
 };
