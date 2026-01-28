@@ -183,7 +183,6 @@ void GameScene::ChangePhase() {
 		if (player_->IsDead()) {
 			// 死亡演出
 			phase_ = Phase::kDeath;
-
 			const Vector3& deathParticlesPosition = player_->GetWorldPosition();
 
 			deathParticles_ = new DeathParticles;

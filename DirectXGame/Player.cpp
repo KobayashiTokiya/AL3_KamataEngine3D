@@ -389,6 +389,8 @@ void Player::CheckMapCollisionUp(CollisionMapInfo& info) {
 
 	bool ice = false;
 
+	bool goal = false;
+
 	// 左上点の判定
 	MapChipField::IndexSet indexSet;
 	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kLeftTop]);
@@ -406,6 +408,10 @@ void Player::CheckMapCollisionUp(CollisionMapInfo& info) {
 		ice = true;
 	}
 
+	if (mapChipType==MapChipType::kGoal) {
+		goal = true;
+	}
+
 	// 右上点の判定
 	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kRightTop]);
 	mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
@@ -418,6 +424,10 @@ void Player::CheckMapCollisionUp(CollisionMapInfo& info) {
 	}
 	if (mapChipType == MapChipType::kIceBlock) {
 		ice = true;
+	}
+	if (mapChipType==MapChipType::kGoal)
+	{
+		goal = true;
 	}
 
 	// ブロックにヒット？ 02_07 スライド34枚目
@@ -449,6 +459,20 @@ void Player::CheckMapCollisionUp(CollisionMapInfo& info) {
 	if (ice) {
 		onIce_ = true;
 		// 現在座標が壁の外か判定
+		MapChipField::IndexSet indexSetNow;
+		indexSetNow = mapChipField_->GetMapChipIndexSetByPosition(worldTransform_.translation_ + Vector3(0, +kHeight / 2.0f, 0));
+		if (indexSetNow.yIndex != indexSet.yIndex) {
+			// めり込みを排除する方向に移動量を設定する
+			indexSet = mapChipField_->GetMapChipIndexSetByPosition(worldTransform_.translation_ + info.move + Vector3(0, +kHeight / 2.0f, 0));
+			MapChipField::Rect rect = mapChipField_->GetRectByIndex(indexSet.xIndex, indexSet.yIndex);
+			info.move.y = std::max(0.0f, rect.bottom - worldTransform_.translation_.y - (kHeight / 2.0f + kBlank));
+			info.ceiling = true;
+		}
+	}
+
+	if (goal)
+	{
+		onGoal_ = true;
 		MapChipField::IndexSet indexSetNow;
 		indexSetNow = mapChipField_->GetMapChipIndexSetByPosition(worldTransform_.translation_ + Vector3(0, +kHeight / 2.0f, 0));
 		if (indexSetNow.yIndex != indexSet.yIndex) {
@@ -707,6 +731,8 @@ void Player::CheckMapCollisionRight(CollisionMapInfo& info) {
 
 	bool ice = false;
 
+	bool goal = false;
+
 	// 右上点の判定
 	MapChipField::IndexSet indexSet;
 	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kRightTop]);
@@ -721,6 +747,11 @@ void Player::CheckMapCollisionRight(CollisionMapInfo& info) {
 		ice = true;
 	}
 
+	if (mapChipType==MapChipType::kGoal)
+	{
+		goal = true;
+	}
+
 	// 右下点の判定
 	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kRightBottom]);
 	mapChipType = mapChipField_->GetMapChipTypeByIndex(indexSet.xIndex, indexSet.yIndex);
@@ -733,6 +764,10 @@ void Player::CheckMapCollisionRight(CollisionMapInfo& info) {
 	}
 	if (mapChipType == MapChipType::kIceBlock) {
 		ice = true;
+	}
+	if (mapChipType==MapChipType::kGoal)
+	{
+		goal = true;
 	}
 
 	// ブロックにヒット？
@@ -763,6 +798,21 @@ void Player::CheckMapCollisionRight(CollisionMapInfo& info) {
 	// 氷ブロック
 	if (ice) {
 		onIce_ = true;
+		// 現在座標が壁の外か判定
+		MapChipField::IndexSet indexSetNow;
+		indexSetNow = mapChipField_->GetMapChipIndexSetByPosition(worldTransform_.translation_ + Vector3(+kWidth / 2.0f, 0, 0));
+		if (indexSetNow.xIndex != indexSet.xIndex) {
+			// めり込みを排除する方向に移動量を設定する
+			indexSet = mapChipField_->GetMapChipIndexSetByPosition(worldTransform_.translation_ + info.move + Vector3(+kWidth / 2.0f, 0, 0));
+			MapChipField::Rect rect = mapChipField_->GetRectByIndex(indexSet.xIndex, indexSet.yIndex);
+			info.move.x = std::max(0.0f, rect.left - worldTransform_.translation_.x - (kWidth / 2.0f + kBlank));
+			info.hitWall = true;
+		}
+	}
+
+	if (goal) 
+	{
+		onGoal_ = true;
 		// 現在座標が壁の外か判定
 		MapChipField::IndexSet indexSetNow;
 		indexSetNow = mapChipField_->GetMapChipIndexSetByPosition(worldTransform_.translation_ + Vector3(+kWidth / 2.0f, 0, 0));
@@ -794,6 +844,7 @@ void Player::CheckMapCollisionLeft(CollisionMapInfo& info) {
 	bool hit = false;
 	bool ladder = false;
 	bool ice = false;
+	bool goal = false;
 
 	// 左上点の判定
 	MapChipField::IndexSet indexSet;
@@ -809,6 +860,10 @@ void Player::CheckMapCollisionLeft(CollisionMapInfo& info) {
 	if (mapChipType == MapChipType::kIceBlock) {
 		ice = true;
 	}
+	if (mapChipType==MapChipType::kGoal)
+	{
+		goal = true;
+	}
 
 	// 左下点の判定
 	indexSet = mapChipField_->GetMapChipIndexSetByPosition(positionsNew[kLeftBottom]);
@@ -822,6 +877,10 @@ void Player::CheckMapCollisionLeft(CollisionMapInfo& info) {
 	}
 	if (mapChipType == MapChipType::kIceBlock) {
 		ice = true;
+	}
+	if (mapChipType==MapChipType::kGoal)
+	{
+		goal = true;
 	}
 
 	// ブロックにヒット？
@@ -853,6 +912,22 @@ void Player::CheckMapCollisionLeft(CollisionMapInfo& info) {
 	// 氷ブロック
 	if (ice) {
 		onIce_ = true;
+		// 現在座標が壁の外か判定
+		MapChipField::IndexSet indexSetNow;
+		indexSetNow = mapChipField_->GetMapChipIndexSetByPosition(worldTransform_.translation_ + Vector3(-kWidth / 2.0f, 0, 0));
+
+		if (indexSetNow.xIndex != indexSet.xIndex) {
+			// めり込みを排除する方向に移動量を設定する
+			indexSet = mapChipField_->GetMapChipIndexSetByPosition(worldTransform_.translation_ + info.move + Vector3(-kWidth / 2.0f, 0, 0));
+			MapChipField::Rect rect = mapChipField_->GetRectByIndex(indexSet.xIndex, indexSet.yIndex);
+			info.move.x = std::max(0.0f, rect.right - worldTransform_.translation_.x - (kWidth / 2.0f + kBlank));
+			info.hitWall = true;
+		}
+	}
+
+	if (goal)
+	{
+		onGoal_ = true;
 		// 現在座標が壁の外か判定
 		MapChipField::IndexSet indexSetNow;
 		indexSetNow = mapChipField_->GetMapChipIndexSetByPosition(worldTransform_.translation_ + Vector3(-kWidth / 2.0f, 0, 0));
