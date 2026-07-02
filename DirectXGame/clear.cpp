@@ -1,0 +1,139 @@
+#include "clear.h"
+#include "Math.h"
+#include <numbers>
+
+using namespace KamataEngine;
+
+Clear::~Clear() {
+	delete modelPlayer_;
+	delete modelClear_;
+	delete modelEnemy1_;
+	delete modelEnemy2_;
+	// 02_13
+	delete fade_;
+}
+
+void Clear::Initialize() {
+	modelClear_ = Model::CreateFromOBJ("GameClear", true);
+	modelPlayer_ = Model::CreateFromOBJ("player");
+	modelEnemy1_ = Model::CreateFromOBJ("enemy");
+	modelEnemy2_ = Model::CreateFromOBJ("enemy");
+
+	//背景
+	modelBackground_ = Model::CreateFromOBJ("ClearBackground", true);
+	worldTransformBackground_.Initialize();
+	worldTransformBackground_.scale_ = {50.0f, 50.0f, 1.0f};      // 背景の大きさ
+	worldTransformBackground_.translation_ = {0.0f, 0.0f, -10.0f}; // カメラより奥
+
+	
+	// カメラ初期化
+	camera_.Initialize();
+
+	const float kClear = 2.0f;
+
+	worldTransformClear_.Initialize();
+	worldTransformClear_.scale_ = {kClear, kClear, kClear};
+
+	const float kPlayerScale = 13.0f;
+
+	worldTransformPlayer_.Initialize();
+	worldTransformPlayer_.scale_ = {kPlayerScale, kPlayerScale, kPlayerScale};
+	worldTransformPlayer_.rotation_.y = 1.0f * std::numbers::pi_v<float>;
+	worldTransformPlayer_.translation_.x = 0.0f;
+	worldTransformPlayer_.translation_.y = -5.0f;
+
+	const float kEnemyScale1 = 5.0f;
+
+	worldTransformEnemy1_.Initialize();
+	worldTransformEnemy1_.scale_ = {kEnemyScale1, kEnemyScale1, kEnemyScale1};
+	worldTransformEnemy1_.rotation_.x = 0.5f * std::numbers::pi_v<float>;
+	worldTransformEnemy1_.translation_.x = 0.0f;
+	worldTransformEnemy1_.translation_.y = -11.0f;
+	//worldTransformEnemy1_.translation_.z = 20.0f;
+
+	const float kEnemyScale2 = 5.0f;
+
+	worldTransformEnemy2_.Initialize();
+	worldTransformEnemy2_.scale_ = {kEnemyScale2, kEnemyScale2, kEnemyScale2};
+	worldTransformEnemy2_.rotation_.x = 0.2f * std::numbers::pi_v<float>;
+	worldTransformEnemy2_.rotation_.y = 0.5f * std::numbers::pi_v<float>;
+	worldTransformEnemy2_.translation_.x = -7.0f;
+	worldTransformEnemy2_.translation_.y = -11.0f;
+	//worldTransformEnemy2_.translation_.z = 20.0f;
+
+	// 02_13
+	fade_ = new Fade();
+	fade_->Initialize();
+
+	fade_->Start(Fade::Status::FadeIn, 1.0f);
+}
+
+void Clear::Update() {
+	// 02_13
+	// fade_->Update();
+
+	switch (phase_) {
+	case Phase::kFadeIn:
+		fade_->Update();
+
+		if (fade_->IsFinished()) {
+			phase_ = Phase::kMain;
+		}
+		break;
+	case Phase::kMain:
+		if (Input::GetInstance()->PushKey(DIK_SPACE)) {
+			fade_->Start(Fade::Status::FadeOut, 1.0f);
+			phase_ = Phase::kFadeOut;
+		}
+		break;
+	case Phase::kFadeOut:
+		fade_->Update();
+		if (fade_->IsFinished()) {
+			finished_ = true;
+		}
+		break;
+	}
+
+	// if (Input::GetInstance()->PushKey(DIK_SPACE))
+	//{
+	//	finished_ = true;
+	// }
+
+	counter_ += 1.0f / 60.0f;
+	counter_ = std::fmod(counter_, kTimeClearMove);
+
+	float angle = counter_ / kTimeClearMove * 2.0f * std::numbers::pi_v<float>;
+
+	worldTransformClear_.translation_.y = std::sin(angle) + 10.0f;
+
+	camera_.TransferMatrix();
+
+	// アフィン変換～DirectXに転送(タイトル座標)
+	WorldTransformUpdate(worldTransformClear_);
+	// アフィン変換～DirectXに転送（プレイヤー座標）
+	WorldTransformUpdate(worldTransformPlayer_);
+	// アフィン変換～DirectXに転送（エネミー1座標）
+	WorldTransformUpdate(worldTransformEnemy1_);
+	// アフィン変換～DirectXに転送（エネミー2座標）
+	WorldTransformUpdate(worldTransformEnemy2_);
+};
+
+void Clear::Draw() {
+	DirectXCommon* dxCommon_ = DirectXCommon::GetInstance();
+	// コマンドリストの取得
+	ID3D12GraphicsCommandList* commandList = dxCommon_->GetCommandList();
+
+	Model::PreDraw(commandList);
+
+	modelClear_->Draw(worldTransformClear_, camera_);
+	modelPlayer_->Draw(worldTransformPlayer_, camera_);
+	modelEnemy1_->Draw(worldTransformEnemy1_, camera_);
+	modelEnemy2_->Draw(worldTransformEnemy2_, camera_);
+
+	//背景
+	modelBackground_->Draw(worldTransformBackground_, camera_);
+
+	// 02_13
+	fade_->Draw();
+	Model::PostDraw();
+};
