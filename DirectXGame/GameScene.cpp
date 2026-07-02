@@ -4,7 +4,6 @@
 #include <imgui_impl_dx12.h>
 #include <imgui_impl_win32.h>
 
-
 using namespace KamataEngine;
 
 GameScene::~GameScene() {
@@ -64,11 +63,11 @@ void GameScene::Initialize() {
 
 	// 氷ブロックモデル
 	modelIce_ = Model::CreateFromOBJ("ice");
-	
+
 	// 崩れるブロックモデル
 	modelCollapse_ = Model::CreateFromOBJ("Collapse");
 
-	//ゴール
+	// ゴール
 	modelGoal_ = Model::CreateFromOBJ("goal");
 
 	// デバッグカメラの生成
@@ -89,11 +88,10 @@ void GameScene::Initialize() {
 	CollapseBlocs();
 	GoalBlock();
 
-
-	//kamaModel_ = Model::CreateFromOBJ("kama", "kama.png");
-	//worldTransformKama_.Initialize();
-	//worldTransformKama_.translation_ = {1000.0f, 0.0f, 500.0f}; // 位置
-	//worldTransformKama_.scale_ = {5.0f, 5.0f, 5.0f};            // サイズ調整
+	// kamaModel_ = Model::CreateFromOBJ("kama", "kama.png");
+	// worldTransformKama_.Initialize();
+	// worldTransformKama_.translation_ = {1000.0f, 0.0f, 500.0f}; // 位置
+	// worldTransformKama_.scale_ = {5.0f, 5.0f, 5.0f};            // サイズ調整
 
 	// 02_07 マップチップクラスを作ってからプレイヤークラスを作る
 	// という順番に入れ替える
@@ -133,11 +131,11 @@ void GameScene::Initialize() {
 	std::vector<std::pair<int32_t, int32_t>> enemySpawnPos = {
 	    {30, 18},
 	    {20, 18},
-	    {25, 8},
+	    {25, 8 },
 	};
 
 	// 02_10 5枚目（for文の中身全部）
-	for (auto& pos:enemySpawnPos) {
+	for (auto& pos : enemySpawnPos) {
 		Enemy* newEnemy = new Enemy();
 
 		Vector3 enemyPosition = mapChipField_->GetMapChipPositionByIndex(pos.first, pos.second);
@@ -145,7 +143,6 @@ void GameScene::Initialize() {
 		newEnemy->Initialize(enemyModel_, &camera_, enemyPosition);
 
 		newEnemy->SetMapChipField(mapChipField_);
-
 
 		enemies_.push_back(newEnemy);
 	}
@@ -194,21 +191,7 @@ void GameScene::ChangePhase() {
 	case Phase::kDeath:
 		break;
 	}
-
 }
-// 1280,720
-void GameScene::Draw() {
-	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
-
-	// スプライト描画前処理
-	Sprite::PreDraw(dxCommon->GetCommandList());
-
-	sprite_->Draw();
-
-	// スプライト描画後処理
-	Sprite::PostDraw();
-
-
 void GameScene::GenerateBlocks() {
 
 	uint32_t numBlockVirtical = mapChipField_->GetNumBlockVirtical();
@@ -344,12 +327,12 @@ void GameScene::UpdateCollapseBlocks() {
 				continue; // ← return はダメ
 			}
 
-			//崩れる床の状態を取得
+			// 崩れる床の状態を取得
 			auto& chip = mapChipField_->GetCollapseChip(x, y);
 
 			Vector3 basePos = mapChipField_->GetMapChipPositionByIndex(x, y);
 
-			//シェイクは WaitCollapse 中だけ
+			// シェイクは WaitCollapse 中だけ
 			if (chip.state == CollapseState::WaitCollapse) {
 				float shake = sinf(chip.shakeTime * 1.0f) * 0.1f;
 				wt->translation_ = basePos + Vector3(shake, 0, 0);
@@ -366,7 +349,7 @@ void GameScene::UpdateCollapseBlocks() {
 void GameScene::Update() {
 
 	mapChipField_->Update();
-	
+
 	// 02_15 7枚目 デスフラグの立った敵を削除
 	enemies_.remove_if([](Enemy* enemy) {
 		if (enemy->IsDead()) {
@@ -375,9 +358,8 @@ void GameScene::Update() {
 		}
 		return false;
 	});
-	//worldTransformKama_.translation_ = {1000.0f, 0.0f, 500.0f}; // 位置
+	// worldTransformKama_.translation_ = {1000.0f, 0.0f, 500.0f}; // 位置
 	ChangePhase();
-
 
 	switch (phase_) {
 	case Phase::kFadeIn:
@@ -590,8 +572,8 @@ void GameScene::Update() {
 	}
 
 	// --- 敵全滅チェック ---
-	//bool allDead = true;
-	//for (Enemy* enemy : enemies_) {
+	// bool allDead = true;
+	// for (Enemy* enemy : enemies_) {
 	//	if (!enemy->IsDead()) {
 	//		allDead = false;
 	//		break;
@@ -702,7 +684,7 @@ void GameScene::Draw() {
 	skydome_->Draw();
 
 	// 釜
-	//kamaModel_->Draw(worldTransformKama_, camera_);
+	// kamaModel_->Draw(worldTransformKama_, camera_);
 
 	// ブロックの描画
 	for (std::vector<WorldTransform*>& worldTransformBlockLine : worldTransformBlocks_) {
@@ -731,7 +713,7 @@ void GameScene::Draw() {
 			modelIce_->Draw(*worldTransformBlock, camera_);
 		}
 	}
-	
+
 	// 崩れるブロックの描画
 	for (uint32_t y = 0; y < worldTransformCollapse_.size(); ++y) {
 		for (uint32_t x = 0; x < worldTransformCollapse_[y].size(); ++x) {
