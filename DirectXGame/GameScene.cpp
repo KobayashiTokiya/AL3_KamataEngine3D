@@ -1,7 +1,9 @@
 #include "GameScene.h"
+
 #include "Math.h"
 #include <imgui_impl_dx12.h>
 #include <imgui_impl_win32.h>
+
 
 using namespace KamataEngine;
 
@@ -192,7 +194,20 @@ void GameScene::ChangePhase() {
 	case Phase::kDeath:
 		break;
 	}
+
 }
+// 1280,720
+void GameScene::Draw() {
+	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
+
+	// スプライト描画前処理
+	Sprite::PreDraw(dxCommon->GetCommandList());
+
+	sprite_->Draw();
+
+	// スプライト描画後処理
+	Sprite::PostDraw();
+
 
 void GameScene::GenerateBlocks() {
 

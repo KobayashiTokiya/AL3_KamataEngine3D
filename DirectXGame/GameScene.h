@@ -13,6 +13,7 @@
 
 class GameScene {
 public:
+
 	~GameScene();
 
 	// 初期化
